@@ -1,3 +1,4 @@
+import 'package:checkpm_app/index_page.dart';
 import 'package:flutter/material.dart';
 
 import 'login_page.dart';
@@ -12,7 +13,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      home: LoginPage(), // Login page로 연결
+      // home: LoginPage(), // Login page로 연결
+      home: IndexPage(),
     );
   }
 }
