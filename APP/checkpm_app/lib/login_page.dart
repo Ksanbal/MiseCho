@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http; // http 통신 패키지
 import 'dart:convert'; // JSON Parsing 패키지
 
-import 'main_page.dart';
+import 'index_page.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -10,6 +10,15 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final id_Controller = TextEditingController();
+  final pw_Controller = TextEditingController();
+
+  @override
+  void dispose() {
+    id_Controller.dispose();
+    pw_Controller.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,6 +44,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               // ID TextField
               TextField(
+                controller: id_Controller,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'ID',
@@ -45,6 +55,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               // Password TextField
               TextField(
+                controller: pw_Controller,
                 obscureText: true,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
@@ -64,12 +75,12 @@ class _LoginPageState extends State<LoginPage> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0)),
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MainPage(),
-                    ),
-                  );
+                  // Navigator.pushReplacement(
+                  //   context,
+                  //   MaterialPageRoute(builder: (context) => IndexPage()),
+                  // );
+                  print('id = ' + id_Controller.text);
+                  print('pw = ' + pw_Controller.text);
                 },
               )
             ],
