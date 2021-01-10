@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
+import 'notification_page.dart';
+
 class DeviceList {
   int no;
   String title;
@@ -33,7 +35,12 @@ class _IndexPageState extends State<IndexPage> {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.notifications),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationPage()),
+              );
+            },
           )
         ],
       ),
@@ -81,102 +88,23 @@ class _IndexPageState extends State<IndexPage> {
                 ),
               ),
             ),
-            // list name
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: Text('  No'),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Text('   Device'),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Text('Connect'),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Text('PM10'),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Text('PM2.5'),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Icon(Icons.list),
-                ),
-              ],
-            ),
             // ListView
             Expanded(
               child: ListView(
                 children: [
-                  FlatButton(
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: Text('1'),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Text('측정기1'),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Icon(
-                            Icons.circle,
-                            color: Colors.green,
-                          ),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Text('25'),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Text('31'),
-                        ),
-                        Icon(
-                          Icons.arrow_forward,
-                        )
-                      ],
+                  Card(
+                    child: ListTile(
+                      leading: Icon(
+                        Icons.circle,
+                        color: Colors.green,
+                        size: 36,
+                      ),
+                      title: Text('측정기 1'),
+                      subtitle: Text('PM10 : 50          PM2.5: 20'),
+                      trailing: Icon(Icons.arrow_forward_ios_rounded),
+                      onTap: () {},
                     ),
-                    onPressed: () {},
                   ),
-                  FlatButton(
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: Text('2'),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Text('측정기2'),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Icon(
-                            Icons.circle,
-                            color: Colors.green,
-                          ),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Text('24'),
-                        ),
-                        Expanded(
-                          flex: 2,
-                          child: Text('40'),
-                        ),
-                        Icon(
-                          Icons.arrow_forward,
-                        )
-                      ],
-                    ),
-                    onPressed: () {},
-                  )
                 ],
               ),
             ),
@@ -188,37 +116,18 @@ class _IndexPageState extends State<IndexPage> {
 
 // List Item Widget
   Widget _buildItemWidget(DeviceList deviceList) {
-    return FlatButton(
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            child: Text('1'),
-          ),
-          Expanded(
-            flex: 2,
-            child: Text('측정기1'),
-          ),
-          Expanded(
-            flex: 2,
-            child: Icon(
-              Icons.circle,
-              color: Colors.green,
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Text('25'),
-          ),
-          Expanded(
-            flex: 2,
-            child: Text('31'),
-          ),
-          Icon(
-            Icons.arrow_forward,
-          )
-        ],
+    return Card(
+      child: ListTile(
+        leading: Icon(
+          Icons.circle,
+          color: Colors.green,
+          size: 36,
+        ),
+        title: Text('측정기 1'),
+        subtitle: Text('PM10 : 50          PM2.5: 20'),
+        trailing: Icon(Icons.arrow_forward_ios_rounded),
+        onTap: () {},
       ),
-      onPressed: () {},
     );
   }
 
@@ -299,7 +208,7 @@ class _IndexPageState extends State<IndexPage> {
             }
             return '';
           },
-          reservedSize: 28,
+          reservedSize: 45,
           margin: 12,
         ),
       ),
