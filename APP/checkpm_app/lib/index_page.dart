@@ -1,3 +1,4 @@
+import 'package:checkpm_app/detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
@@ -30,6 +31,7 @@ class _IndexPageState extends State<IndexPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xfff0f0f0),
       appBar: AppBar(
         title: Text('CheckPM'),
         actions: <Widget>[
@@ -102,7 +104,12 @@ class _IndexPageState extends State<IndexPage> {
                       title: Text('측정기 1'),
                       subtitle: Text('PM10 : 50          PM2.5: 20'),
                       trailing: Icon(Icons.arrow_forward_ios_rounded),
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => DetailPage()),
+                        );
+                      },
                     ),
                   ),
                 ],
@@ -136,7 +143,7 @@ class _IndexPageState extends State<IndexPage> {
     return LineChartData(
       gridData: FlGridData(
         show: true,
-        drawVerticalLine: true,
+        drawVerticalLine: false,
         drawHorizontalLine: false,
         getDrawingHorizontalLine: (value) {
           return FlLine(
@@ -156,7 +163,7 @@ class _IndexPageState extends State<IndexPage> {
         bottomTitles: SideTitles(
           showTitles: true,
           reservedSize: 22,
-          textStyle: const TextStyle(
+          getTextStyles: (value) => const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
             fontSize: 15,
@@ -189,7 +196,7 @@ class _IndexPageState extends State<IndexPage> {
         ),
         leftTitles: SideTitles(
           showTitles: true,
-          textStyle: const TextStyle(
+          getTextStyles: (value) => const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
             fontSize: 15,
@@ -255,6 +262,123 @@ class _IndexPageState extends State<IndexPage> {
 
 // 초미세먼지 차트 데이터
   LineChartData PM25Chart() {
-    return LineChartData();
+    return LineChartData(
+      gridData: FlGridData(
+        show: true,
+        drawVerticalLine: false,
+        drawHorizontalLine: false,
+        getDrawingHorizontalLine: (value) {
+          return FlLine(
+            color: Colors.grey,
+            strokeWidth: 1,
+          );
+        },
+        getDrawingVerticalLine: (value) {
+          return FlLine(
+            color: Colors.grey,
+            strokeWidth: 1,
+          );
+        },
+      ),
+      titlesData: FlTitlesData(
+        show: true,
+        bottomTitles: SideTitles(
+          showTitles: true,
+          reservedSize: 22,
+          getTextStyles: (value) => const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
+          ),
+          getTitles: (value) {
+            print('bottomTitles $value');
+            switch (value.toInt()) {
+              case 0:
+                return '0';
+              case 3:
+                return '3';
+              case 6:
+                return '6';
+              case 9:
+                return '9';
+              case 12:
+                return '12';
+              case 15:
+                return '15';
+              case 18:
+                return '18';
+              case 21:
+                return '21';
+              case 24:
+                return '24';
+            }
+            return '';
+          },
+          margin: 8,
+        ),
+        leftTitles: SideTitles(
+          showTitles: true,
+          getTextStyles: (value) => const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
+          ),
+          getTitles: (value) {
+            print('leftTitles $value');
+            switch (value.toInt()) {
+              case 10:
+                return '좋음';
+              case 30:
+                return '보통';
+              case 80:
+                return '나쁨';
+              case 150:
+                return '매우 나쁨';
+            }
+            return '';
+          },
+          reservedSize: 45,
+          margin: 12,
+        ),
+      ),
+      borderData: FlBorderData(
+          show: true,
+          border: Border.all(color: const Color(0xff37434d), width: 1)),
+      minX: 0,
+      maxX: 24,
+      minY: 0,
+      maxY: 160,
+      lineBarsData: [
+        LineChartBarData(
+          spots: [
+            FlSpot(0, 10),
+            FlSpot(1, 30),
+            FlSpot(2, 70),
+            FlSpot(3, 35),
+            FlSpot(4, 55),
+            FlSpot(5, 32),
+            FlSpot(6, 80),
+            FlSpot(7, 90),
+            FlSpot(8, 65),
+            FlSpot(9, 60),
+            FlSpot(10, 56),
+            FlSpot(11, 42),
+            FlSpot(12, 20),
+          ],
+          isCurved: true,
+          colors: gradientColors,
+          barWidth: 5,
+          isStrokeCapRound: true,
+          dotData: FlDotData(
+            show: true,
+          ),
+          belowBarData: BarAreaData(
+            show: true,
+            colors:
+                gradientColors.map((color) => color.withOpacity(0.3)).toList(),
+          ),
+        ),
+      ],
+    );
   }
 }
