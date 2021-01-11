@@ -20,6 +20,8 @@ class _DetailPageState extends State<DetailPage> {
   }
 
   // Picker's items
+  // 설정 변경 확인
+  bool isChanged = false;
   // 미세먼지 측정 주기
   var PMFre = 5;
   // 위험 미세먼지 정도
@@ -37,6 +39,44 @@ class _DetailPageState extends State<DetailPage> {
       backgroundColor: Color(0xfff0f0f0),
       appBar: AppBar(
         title: Text('$DeviceName'),
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back_ios,
+            color: Colors.white,
+          ),
+          onPressed: () {
+            if (isChanged) {
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('변경사항'),
+                    content: Text('$DeviceName' + '의 설정을 변경하시겠습니까?'),
+                    actions: <Widget>[
+                      FlatButton(
+                          onPressed: () {
+                            // 변경사항 적용 코드 자리
+                            // (){}
+                            Navigator.of(context).pop();
+                            Navigator.of(context).pop();
+                          },
+                          child: Text('Yes')),
+                      FlatButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            Navigator.of(context).pop();
+                          },
+                          child: Text('No')),
+                    ],
+                  );
+                },
+              );
+            } else {
+              Navigator.of(context).pop();
+            }
+          },
+        ),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.power_settings_new_rounded),
@@ -149,6 +189,7 @@ class _DetailPageState extends State<DetailPage> {
                         selectedNumber: PMFre,
                         onChanged: (value) => setState(() => PMFre = value),
                       );
+                      isChanged = true;
                     },
                   ),
                 ),
@@ -180,6 +221,7 @@ class _DetailPageState extends State<DetailPage> {
                         onChanged: (value) =>
                             setState(() => selectedPMNotice = value),
                       );
+                      isChanged = true;
                     },
                   ),
                 ),
@@ -212,6 +254,7 @@ class _DetailPageState extends State<DetailPage> {
                         onChanged: (value) =>
                             setState(() => DataNotice = value),
                       );
+                      isChanged = true;
                     },
                   ),
                 ),
@@ -250,6 +293,7 @@ class _DetailPageState extends State<DetailPage> {
                             onChanged: (value) =>
                                 setState(() => stopTime = value),
                           );
+                          isChanged = true;
                         },
                       );
                     },
