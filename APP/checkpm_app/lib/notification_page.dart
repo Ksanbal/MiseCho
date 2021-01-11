@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'detail_page.dart';
 
 class NotiList {
   String date;
@@ -19,6 +20,7 @@ class _NotificationPageState extends State<NotificationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xfff0f0f0),
       appBar: AppBar(
         title: Text('Notification'),
       ),
@@ -39,7 +41,12 @@ class _NotificationPageState extends State<NotificationPage> {
                       leading: Text('20.01.10\n14:49'),
                       title: Text('측정기 1'),
                       subtitle: Text('초미세먼지가 80을 초과했습니다.'),
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => DetailPage()),
+                        );
+                      },
                     ),
                   ),
                 ],
