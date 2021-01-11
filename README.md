@@ -3,9 +3,7 @@
 
 ---
 ## Wireframe
-<img src='./img/index.png' height=400>
-<img src='./img/notice.png' height=400>
-<img src='./img/detail.png' height=400>
+<img src='./img/index.png' height=400><img src='./img/notice.png' height=400><img src='./img/detail.png' height=400>
 <br>
 
 ---
