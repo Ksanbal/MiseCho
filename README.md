@@ -7,3 +7,7 @@
 <img src='./img/notice.png' height=400>
 <img src='./img/detail.png' height=400>
 <br>
+
+---
+## App Work
+<img src='./img/HowToWorkApp.gif' height=400>
