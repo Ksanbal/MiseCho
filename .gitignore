@@ -1,3 +1,4 @@
 .idea
 API/__pycache__
+API/views/__pycache__
 API/lenv
