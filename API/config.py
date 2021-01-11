@@ -1,2 +1,7 @@
-# DB 관련 연결 모음
-DATABASE_FILE = 'sqlite://test.db'
+import os
+
+# DB
+BASE_DIR = os.path.dirname(__file__)
+
+SQLALCHEMY_DATABASE_URI = 'sqlite:///{}'.format(os.path.join(BASE_DIR, 'checkPM.db'))
+SQLALCHEMY_TRACK_MODIFICATIONS = False
