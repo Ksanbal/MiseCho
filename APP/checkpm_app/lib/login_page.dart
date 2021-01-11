@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http; // http 통신 패키지
 import 'dart:convert'; // JSON Parsing 패키지
+import 'dart:io';
 
 import 'index_page.dart';
 
@@ -75,10 +76,37 @@ class _LoginPageState extends State<LoginPage> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0)),
                 onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => IndexPage()),
+                  showDialog(
+                    context: context,
+                    barrierDismissible: true,
+                    builder: (BuildContext context) {
+                      // Time Delay
+                      Future.delayed(
+                        Duration(seconds: 1),
+                        () {
+                          Navigator.pop(context);
+                        },
+                      );
+
+                      // Progress Circle
+                      return Container(
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            backgroundColor: Colors.white,
+                          ),
+                        ),
+                      );
+                    },
+                  ).then(
+                    // Dialog 종료 후 실행
+                    (value) {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => IndexPage()),
+                      );
+                    },
                   );
+
                   print('id = ' + id_Controller.text);
                   print('pw = ' + pw_Controller.text);
                 },
