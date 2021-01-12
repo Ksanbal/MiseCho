@@ -1,7 +1,1 @@
-import os
-
-# DB
-BASE_DIR = os.path.dirname(__file__)
-
-SQLALCHEMY_DATABASE_URI = 'sqlite:///{}'.format(os.path.join(BASE_DIR, 'checkPM.db'))
-SQLALCHEMY_TRACK_MODIFICATIONS = False
+DATABASE_FILE = 'sqlite:///checkPM.db'

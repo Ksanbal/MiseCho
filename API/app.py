@@ -1,26 +1,42 @@
 from flask import Flask
-
-# from .views import main_views
-
-# DB
-from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
-
+from flask_admin import AdminIndexView
+from flask_admin.contrib.sqlamodel import ModelView
+from extensions import *
+from models import *
 import config
 
-db = SQLAlchemy()
-migrate = Migrate()
+app = Flask(__name__)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = config.DATABASE_FILE
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = '1234567890'
+app.config['FLASK_ADMIN_SWATCH'] = 'cerulean'
+
+db.init_app(app)
+admin.init_app(app)
 
 
-def create_app():
-    app = Flask(__name__)
-    app.config.from_object(config)
+class UserModelView(ModelView):
+    can_create = True
+    can_edit = True
+    can_delete = True
+    can_view_details = True
+    can_export = True
+    create_modal = True
 
-    # ORM
-    db.init_app(app)
-    migrate.init_app(app, db)
 
-    # BluePrint
-    # app.register_blueprint(main_views.bp)
+admin.add_view(UserModelView(Users, db.session))
 
-    return app
+
+@app.before_first_request
+def db_creat():
+    db.create_all()
+
+
+@app.route('/')
+def hello_world():
+    return 'Hello World!'
+
+
+if __name__ == '__main__':
+    app.run()
