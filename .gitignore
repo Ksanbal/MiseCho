@@ -1,4 +1,7 @@
 .idea
 API/__pycache__
-API/views/__pycache__
+API/API/__pycache__
+API/checkPM/__pycache__
 API/lenv
+
+API/CheckPM/migrations/
