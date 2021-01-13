@@ -20,5 +20,5 @@ from django.conf import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('checkPM.urls')),
-    path('auth/', include('knox.urls'))
+    # path('auth/', include('knox.urls'))
 ]
