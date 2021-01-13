@@ -1,8 +1,8 @@
 from django.contrib import admin
-from .models import *
+from . import models as mo
 
 
-class UsersAdmin(admin.ModelAdmin):
+class ProfileAdmin(admin.ModelAdmin):
     pass
 
 
@@ -22,13 +22,8 @@ class DatasAdmin(admin.ModelAdmin):
     pass
 
 
-class AvgdatasAdmin(admin.ModelAdmin):
-    pass
-
-
-admin.site.register(Users, UsersAdmin)
-admin.site.register(Companys, CompanyAdmin)
-admin.site.register(Devices, DevicesAdmin)
-admin.site.register(Notices, NoticesAdmin)
-admin.site.register(Datas, DatasAdmin)
-admin.site.register(AvgDatas, AvgdatasAdmin)
+admin.site.register(mo.Profile, ProfileAdmin)
+admin.site.register(mo.Companys, CompanyAdmin)
+admin.site.register(mo.Devices, DevicesAdmin)
+admin.site.register(mo.Notices, NoticesAdmin)
+admin.site.register(mo.Datas, DatasAdmin)

@@ -1,21 +1,22 @@
 from django.urls import path
-from .views import *
+from . import views as vi
 
 urlpatterns = [
     # 회원관리
     # 회원가입
-    path('auth/signup/', SignUp.as_view()),
+    path('app/auth/signup/', vi.signup),
     # 로그인
-    path('auth/signin/', SignIn.as_view()),
+    path('app/auth/signin/', vi.signin),
 
     # Main Page
 
     # Notice Page
+    path('app/notice/', vi.notifications),
 
     # Device setting Page
-        # Get
-
-        # Post
+    path('app/device/<int:device_id>/', vi.device_setting),
 
     # Device Data Post
+    path('device/datapost/', vi.data_post),
 ]
+

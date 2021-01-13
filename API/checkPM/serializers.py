@@ -1,10 +1,9 @@
 from django.contrib.auth import authenticate
 from rest_framework import serializers
-from .models import *
+
+from . import models as mo
 
 
-# 회원관리
-# 회원가입
 class SignUp_Serializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
@@ -14,14 +13,21 @@ class SignUp_Serializer(serializers.Serializer):
     c_id = serializers.IntegerField()
 
     def create(self, validated_data):
-        user = Users.objects.create_user(
+        user = mo.User.objects.create_user(
             username=validated_data["username"],
             password=validated_data["password"],
             first_name=validated_data["first_name"],
             last_name=validated_data["last_name"],
-            email=validated_data["email"],
-            c_id=Companys.objects.get(id=validated_data["c_id"])
+            email=validated_data["email"]
         )
+        profile = mo.Profile(
+            user=user,
+            c_id=mo.Companys.objects.get(id=validated_data["c_id"])
+        )
+
+        user.save()
+        profile.save()
+
         return user
 
 
@@ -36,19 +42,39 @@ class SignIn_Serializer(serializers.Serializer):
             return user
         raise serializers.ValidationError("Unable to sign in with provided credentials.")
 
-
-class User_Serializer(serializers.ModelSerializer):
-    class Meta:
-        model = Users
-        fields = ('id', 'username')
-
 # Main Page
 
+
 # Notice Page
+class Notification_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = mo.Notices
+        fields = '__all__'
+
 
 # Device setting Page
-    # Get
+# Get
+class DeviceSetting_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = mo.Devices
+        fields = '__all__'
+# Post
 
-    # Post
 
 # Device Data Post
+class DataPost_Serializer(serializers.ModelSerializer):
+    pm10 = serializers.IntegerField()
+    pm25 = serializers.IntegerField()
+    d_id = serializers.IntegerField()
+
+    class Meta:
+        model = mo.Datas
+        fields = '__all__'
+
+    def create(self, validated_data):
+        data = mo.Datas.objects.create(
+            pm10=validated_data["pm10"],
+            pm25=validated_data["pm25"],
+            d_id=mo.Devices.objects.get(id=validated_data["d_id"])
+        )
+        return data
