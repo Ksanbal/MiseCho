@@ -53,12 +53,18 @@ class Notification_Serializer(serializers.ModelSerializer):
 
 
 # Device setting Page
-# Get
 class DeviceSetting_Serializer(serializers.ModelSerializer):
     class Meta:
         model = mo.Devices
         fields = '__all__'
-# Post
+
+
+class AvgData_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = mo.AvgDatas
+        fields = (
+            'avgpm10', 'avgpm25'
+        )
 
 
 # Device Data Post
@@ -68,11 +74,11 @@ class DataPost_Serializer(serializers.ModelSerializer):
     d_id = serializers.IntegerField()
 
     class Meta:
-        model = mo.Datas
+        model = mo.RawDatas
         fields = '__all__'
 
     def create(self, validated_data):
-        data = mo.Datas.objects.create(
+        data = mo.RawDatas.objects.create(
             pm10=validated_data["pm10"],
             pm25=validated_data["pm25"],
             d_id=mo.Devices.objects.get(id=validated_data["d_id"])

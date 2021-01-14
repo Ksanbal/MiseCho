@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from datetime import datetime
 
 from rest_framework import generics, status, viewsets, permissions
 from rest_framework.response import Response
@@ -91,9 +92,14 @@ def device_setting(request, device_id):
 
     # GET
     if request.method == 'GET':
-        # 시간대, 날짜별 평균 데이터
-        serializer = se.DeviceSetting_Serializer(device)
-        return Response(serializer.data)
+        # 해당 디바이스 선택날짜 시간대별 데이
+        date = [int(i) for i in request.data['date'].split('-')]
+        avgdatas = mo.AvgDatas.objects.filter(date=datetime(date[0], date[1], date[2]), d_id=device)
+        avgdata_serializer = se.AvgData_Serializer(avgdatas, many=True)
+
+        # 디바이스 설정 정보터
+        device_serializer = se.DeviceSetting_Serializer(device)
+        return Response([avgdata_serializer.data, device_serializer.data])
     # PUT
     elif request.method == 'PUT':
         serializer = se.DeviceSetting_Serializer(device, data=request.data)
