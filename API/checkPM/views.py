@@ -112,9 +112,52 @@ def device_setting(request, device_id):
 # Device Data Post
 @api_view(['POST'])
 def data_post(request):
+    # 미세먼지 정도 확인 및 알림 생성 함수
+    def check_grade(pm10, pm25, d_id):
+        # 미세먼지 단계
+        pm10_grade = [0, 16, 31, 41, 51, 76, 101, 151]  # 미세먼지
+        pm25_grade = [0, 9, 16, 21, 26, 38, 51, 76]  # 초미세먼지
+        str_grade = ['최고', '좋음', '양호', '보통', '나쁨', '상당히 나쁨', '매우 나쁨', '최악']
+
+        # 디바이스의 단계 확인
+        device = mo.Devices.objects.get(id=d_id)
+        device_grade = device.pmhigh
+
+        for n, i in enumerate(pm10_grade):
+            if pm10 > i:
+                pm10_now = n
+
+        for n, i in enumerate(pm25_grade):
+            if pm25 > i:
+                pm25_now = n
+
+        # 단계 확인 후 알림 데이터 생성
+        if pm10 > pm10_grade[device_grade]:
+            for n, i in enumerate(pm10_grade):
+                if pm10 > i:
+                    pm10_now = n
+
+            mo.Notices(
+                content=f'미세먼지 상태가 "{str_grade[pm10_now]}"입니다. 확인해주세요.',
+                d_id=device,
+                c_id=device.c_id
+            ).save()
+
+        if pm25 > pm25_grade[device_grade]:
+            for n, i in enumerate(pm25_grade):
+                if pm25 > i:
+                    pm25_now = n
+
+            mo.Notices(
+                content=f'초미세먼지 상태가 "{str_grade[pm25_now]}"입니다. 확인해주세요.',
+                d_id=device,
+                c_id=device.c_id
+            ).save()
+
     if request.method == 'POST':
         serializer = se.DataPost_Serializer(data=request.data)
         if serializer.is_valid():
+            check_grade(request.data['pm10'], request.data['pm25'], request.data['d_id'])
             serializer.save()
             return Response(serializer.errors, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
