@@ -18,7 +18,11 @@ class NoticesAdmin(admin.ModelAdmin):
     pass
 
 
-class DatasAdmin(admin.ModelAdmin):
+class RawDatasAdmin(admin.ModelAdmin):
+    pass
+
+
+class AvgDatasAdmin(admin.ModelAdmin):
     pass
 
 
@@ -26,4 +30,5 @@ admin.site.register(mo.Profile, ProfileAdmin)
 admin.site.register(mo.Companys, CompanyAdmin)
 admin.site.register(mo.Devices, DevicesAdmin)
 admin.site.register(mo.Notices, NoticesAdmin)
-admin.site.register(mo.Datas, DatasAdmin)
+admin.site.register(mo.RawDatas, RawDatasAdmin)
+admin.site.register(mo.AvgDatas, AvgDatasAdmin)

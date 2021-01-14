@@ -31,8 +31,17 @@ class Notices(models.Model):
     c_id = models.ForeignKey(Companys, on_delete=models.CASCADE, db_column='c_id')
 
 
-class Datas(models.Model):
-    date = models.DateTimeField(auto_now_add=True)
+class RawDatas(models.Model):
+    date = models.DateField(auto_now_add=True)
+    time = models.TimeField(auto_now_add=True)
     pm10 = models.IntegerField()
     pm25 = models.IntegerField()
+    d_id = models.ForeignKey(Devices, on_delete=models.CASCADE, db_column='d_id')
+
+
+class AvgDatas(models.Model):
+    date = models.DateField(auto_now_add=True)
+    time = models.TimeField(auto_now_add=True)
+    avgpm10 = models.IntegerField()
+    avgpm25 = models.IntegerField()
     d_id = models.ForeignKey(Devices, on_delete=models.CASCADE, db_column='d_id')
