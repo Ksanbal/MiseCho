@@ -6,5 +6,5 @@ API/lenv
 
 API/CheckPM/migrations/
 
-API/db.sqlite3
-API/identifier.sqlite
+# API/db.sqlite3
+# API/identifier.sqlite
