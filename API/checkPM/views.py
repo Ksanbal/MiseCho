@@ -1,13 +1,10 @@
-from django.shortcuts import render
 from datetime import datetime
 
-from rest_framework import generics, status, viewsets, permissions
+from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.parsers import FileUploadParser
-from rest_framework.views import APIView
 from rest_framework.decorators import api_view
-from rest_framework import mixins
 from rest_framework.authtoken.models import Token
+from django.db.models import Avg
 
 # 시리얼라이저
 from . import serializers as se
@@ -60,29 +57,67 @@ def signin(request):
 # Main Page
 @api_view(['GET'])
 def main(request):
-    # 전체 평균 data
-    # 측정기 list (id, 이름, 연결상태, 현재날짜 평균 pm10, 현재날짜 평균 pm25)
-    pass
+    if request.user.username != 'AnonymousUser':
+        now_user = request.user
+        date = [int(i) for i in request.data['date'].split('-')]
+        date = datetime(date[0], date[1], date[2])
+
+        # 전체 평균 data
+        myAVG = mo.TotalAvgDatas.objects.filter(
+            date=date, c_id=mo.Profile.objects.get(user_id=now_user).c_id
+        )
+        avg_serializer = se.Total_AvgData_Serializer(myAVG, many=True)
+
+        # 측정기 list (id, 이름, 연결상태, 현재날짜 평균 pm10, 현재날짜 평균 pm25)
+        myDevices = mo.Devices.objects.filter(c_id=mo.Profile.objects.get(user_id=now_user).c_id)
+        for i in myDevices:
+            i.avgpm10 = mo.AvgDatas.objects.filter(
+                date=date,
+                d_id=i.id
+            ).aggregate(Avg('avgpm10'))['avgpm10__avg']
+            i.avgpm25 = mo.AvgDatas.objects.filter(
+                date=date,
+                d_id=i.id
+            ).aggregate(Avg('avgpm25'))['avgpm25__avg']
+            i.save()
+
+        deviceList_serializer = se.MainDeviceList_Serialzier(myDevices, many=True)
+        return Response([avg_serializer.data, deviceList_serializer.data], status=status.HTTP_200_OK)
+    else:
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
 # Notifications List Page
 @api_view(['GET'])
 def notifications(request):
     # 접속한 유저 확인
-    now_c_id = mo.Profile.objects.get(
-        user_id=mo.User.objects.get(username=request.user).id
-    ).c_id
+    if request.user.username != 'AnonymousUser':
+        now_c_id = mo.Profile.objects.get(
+            user_id=request.user.id
+        ).c_id
 
-    # 회사의 id를 가진 모든 notification 반환
-    notices = mo.Notices.objects.filter(c_id=now_c_id)
+        # 회사의 id를 가진 모든 notification 반환
+        notices = mo.Notices.objects.filter(c_id=now_c_id)
 
-    if request.method == 'GET':
-        serializer = se.Notification_Serializer(notices, many=True)
-        return Response(serializer.data)
+        if request.method == 'GET':
+            serializer = se.Notification_Serializer(notices, many=True)
+            return Response(serializer.data)
+    return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
+# 요청한 사용자가 디바이스에 권한이 있는지 확인
+def check_device_auth(user, device_id):
+    if user.username != 'AnonymousUser':
+        device_c_id = mo.Devices.objects.get(id=device_id).c_id
+        user_c_id = mo.Profile.objects.get(user_id=user).c_id
+
+        if user_c_id == device_c_id:
+            return True
+    return False
 
 
 # Device setting Page
-@api_view(['GET', 'PUT'])
+@api_view(['GET', 'PUT', 'PATCH'])
 def device_setting(request, device_id):
     # Found Check
     try:
@@ -90,23 +125,29 @@ def device_setting(request, device_id):
     except device.DoesNotExist:
         return Response('디바이스를 찾지 못했습니다.', status=status.HTTP_404_NOT_FOUND)
 
-    # GET
-    if request.method == 'GET':
-        # 해당 디바이스 선택날짜 시간대별 데이
-        date = [int(i) for i in request.data['date'].split('-')]
-        avgdatas = mo.AvgDatas.objects.filter(date=datetime(date[0], date[1], date[2]), d_id=device)
-        avgdata_serializer = se.AvgData_Serializer(avgdatas, many=True)
+    if check_device_auth(request.user, device_id):
+        # GET
+        if request.method == 'GET':
+            # 해당 디바이스 선택날짜 시간대별 데이터
+            date = [int(i) for i in request.data['date'].split('-')]
+            avgdatas = mo.AvgDatas.objects.filter(date=datetime(date[0], date[1], date[2]), d_id=device)
+            avgdata_serializer = se.AvgData_Serializer(avgdatas, many=True)
 
-        # 디바이스 설정 정보터
-        device_serializer = se.DeviceSetting_Serializer(device)
-        return Response([avgdata_serializer.data, device_serializer.data])
-    # PUT
-    elif request.method == 'PUT':
-        serializer = se.DeviceSetting_Serializer(device, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            # 디바이스 설정 정보
+            device_serializer = se.DeviceSetting_Serializer(device)
+            return Response([avgdata_serializer.data, device_serializer.data], status=status.HTTP_200_OK)
+        # PUT
+        elif request.method == 'PUT':
+            serializer = se.DeviceSetting_Serializer(device, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # PATCH -> 전원 끄기r
+        elif request.method == 'PATCH':
+            # 디바이스 끄는 코드 작성
+            return Response('전원 끄기', status=status.HTTP_200_OK)
+    return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
 # Device Data Post

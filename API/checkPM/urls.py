@@ -9,6 +9,7 @@ urlpatterns = [
     path('app/auth/signin/', vi.signin),
 
     # Main Page
+    path('app/main/', vi.main),
 
     # Notice Page
     path('app/notice/', vi.notifications),

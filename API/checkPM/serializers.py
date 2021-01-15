@@ -42,7 +42,20 @@ class SignIn_Serializer(serializers.Serializer):
             return user
         raise serializers.ValidationError("Unable to sign in with provided credentials.")
 
+
 # Main Page
+class MainDeviceList_Serialzier(serializers.ModelSerializer):
+    class Meta:
+        model = mo.Devices
+        fields = ('id', 'name', 'connect', 'avgpm10', 'avgpm25')
+
+
+class Total_AvgData_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = mo.AvgDatas
+        fields = (
+            'avgpm10', 'avgpm25'
+        )
 
 
 # Notice Page
