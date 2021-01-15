@@ -21,6 +21,8 @@ class Devices(models.Model):
     work_s = models.CharField(max_length=4, default='0900')
     work_e = models.CharField(max_length=4, default='1800')
     comment = models.TextField(null=True)
+    avgpm10 = models.IntegerField(null=True)
+    avgpm25 = models.IntegerField(null=True)
     c_id = models.ForeignKey(Companys, on_delete=models.CASCADE, db_column='c_id')
 
 
@@ -45,3 +47,12 @@ class AvgDatas(models.Model):
     avgpm10 = models.IntegerField()
     avgpm25 = models.IntegerField()
     d_id = models.ForeignKey(Devices, on_delete=models.CASCADE, db_column='d_id')
+    c_id = models.ForeignKey(Companys, on_delete=models.CASCADE, db_column='c_id')
+
+
+class TotalAvgDatas(models.Model):
+    date = models.DateField(auto_now_add=True)
+    time = models.TimeField(auto_now_add=True)
+    avgpm10 = models.IntegerField()
+    avgpm25 = models.IntegerField()
+    c_id = models.ForeignKey(Companys, on_delete=models.CASCADE, db_column='c_id')

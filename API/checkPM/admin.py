@@ -26,9 +26,14 @@ class AvgDatasAdmin(admin.ModelAdmin):
     pass
 
 
+class TotalAvgDatasAdmin(admin.ModelAdmin):
+    pass
+
+
 admin.site.register(mo.Profile, ProfileAdmin)
 admin.site.register(mo.Companys, CompanyAdmin)
 admin.site.register(mo.Devices, DevicesAdmin)
 admin.site.register(mo.Notices, NoticesAdmin)
 admin.site.register(mo.RawDatas, RawDatasAdmin)
 admin.site.register(mo.AvgDatas, AvgDatasAdmin)
+admin.site.register(mo.TotalAvgDatas, TotalAvgDatasAdmin)
