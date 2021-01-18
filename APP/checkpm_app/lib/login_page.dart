@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http; // http 통신 패키지
 import 'dart:convert'; // JSON Parsing 패키지
-import 'dart:io';
+import 'package:http/http.dart' as http; // http 통신 패키지
 
 import 'index_page.dart';
+
+class User {
+  String token;
+
+  User(this.token);
+}
 
 class LoginPage extends StatefulWidget {
   @override
@@ -13,6 +18,8 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final id_Controller = TextEditingController();
   final pw_Controller = TextEditingController();
+
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -25,96 +32,92 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              // Main Text
-              Text(
-                'Check PM',
-                style: TextStyle(
-                  fontSize: 70,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green,
-                  letterSpacing: 2,
+        child: _isLoading
+            ? Center(child: CircularProgressIndicator())
+            : Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    // Main Text
+                    Text(
+                      'Check PM',
+                      style: TextStyle(
+                        fontSize: 70,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
+                        letterSpacing: 2,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 70,
+                    ),
+                    // ID TextField
+                    TextField(
+                      controller: id_Controller,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'ID',
+                      ),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    // Password TextField
+                    TextField(
+                      controller: pw_Controller,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'PassWord',
+                      ),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    // Login btn
+                    RaisedButton(
+                      child: Text(
+                        'Login',
+                        style: TextStyle(fontSize: 25, color: Colors.white),
+                      ),
+                      color: Colors.green,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0)),
+                      onPressed: () {
+                        _isLoading = true;
+                        signIn(id_Controller.text, pw_Controller.text);
+                        print('id = ' + id_Controller.text);
+                        print('pw = ' + pw_Controller.text);
+                      },
+                    )
+                  ],
                 ),
               ),
-              SizedBox(
-                height: 70,
-              ),
-              // ID TextField
-              TextField(
-                controller: id_Controller,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'ID',
-                ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              // Password TextField
-              TextField(
-                controller: pw_Controller,
-                obscureText: true,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'PassWord',
-                ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              // Login btn
-              RaisedButton(
-                child: Text(
-                  'Login',
-                  style: TextStyle(fontSize: 25, color: Colors.white),
-                ),
-                color: Colors.green,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0)),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    barrierDismissible: true,
-                    builder: (BuildContext context) {
-                      // Time Delay
-                      Future.delayed(
-                        Duration(seconds: 1),
-                        () {
-                          Navigator.pop(context);
-                        },
-                      );
-
-                      // Progress Circle
-                      return Container(
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            backgroundColor: Colors.white,
-                          ),
-                        ),
-                      );
-                    },
-                  ).then(
-                    // Dialog 종료 후 실행
-                    (value) {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => IndexPage()),
-                      );
-                    },
-                  );
-
-                  print('id = ' + id_Controller.text);
-                  print('pw = ' + pw_Controller.text);
-                },
-              )
-            ],
-          ),
-        ),
       ),
     );
+  }
+
+  signIn(String username, password) async {
+    Map data = {
+      'username': username,
+      'password': password,
+    };
+    var jsonData = null;
+    var response = await http.post('http://127.0.0.1:8000/api/app/auth/signin/',
+        body: data);
+    if (response.statusCode == 200) {
+      jsonData = json.decode(response.body);
+      setState(() {
+        _isLoading = false;
+        final user = User(jsonData['token']);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => IndexPage(user: user)),
+        );
+      });
+    } else {
+      print(response.body);
+    }
   }
 }
