@@ -22,6 +22,8 @@ class _DetailPageState extends State<DetailPage> {
   // Picker's items
   // 설정 변경 확인
   bool isChanged = false;
+  // 오늘 날짜
+  var date = DateTime.now();
   // 미세먼지 측정 주기
   var PMFre = 5;
   // 위험 미세먼지 정도
@@ -111,20 +113,31 @@ class _DetailPageState extends State<DetailPage> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: <Widget>[
-            // 연결상태
+            // 현재 날짜 및 연결상태
             Expanded(
               child: Card(
                 child: Center(
                   child: ListTile(
-                    leading: Text(
-                      '연결상태',
-                      style: TextStyle(fontSize: 25, letterSpacing: -1),
+                    title: Text(
+                      '${date.year}-${date.month}-${date.day}',
+                      style: TextStyle(
+                          fontSize: 25,
+                          letterSpacing: -1,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green),
                     ),
                     trailing: Icon(
                       Icons.circle,
                       color: Colors.green,
                       size: 40,
                     ),
+                    onTap: () {
+                      showMaterialDatePicker(
+                        context: context,
+                        selectedDate: date,
+                        onChanged: (value) => setState(() => date = value),
+                      );
+                    },
                   ),
                 ),
               ),
