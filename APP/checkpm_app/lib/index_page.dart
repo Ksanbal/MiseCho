@@ -1,8 +1,12 @@
 import 'package:checkpm_app/detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_material_pickers/flutter_material_pickers.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 import 'notification_page.dart';
+import 'login_page.dart';
 
 class DeviceList {
   int no;
@@ -15,11 +19,15 @@ class DeviceList {
 }
 
 class IndexPage extends StatefulWidget {
+  final User user;
+  IndexPage({Key key, @required this.user}) : super(key: key);
+
   @override
   _IndexPageState createState() => _IndexPageState();
 }
 
 class _IndexPageState extends State<IndexPage> {
+  bool _isLoading = false;
   final _items = <DeviceList>[];
 
   List<Color> gradientColors = [
@@ -27,6 +35,13 @@ class _IndexPageState extends State<IndexPage> {
     const Color(0xff02d39a),
   ];
   bool showPM10 = true;
+  var date = DateTime.now();
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   LoadMain('2021-01-14');
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -40,86 +55,135 @@ class _IndexPageState extends State<IndexPage> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => NotificationPage()),
+                MaterialPageRoute(
+                    builder: (context) => NotificationPage(
+                          user: widget.user,
+                        )),
               );
             },
           )
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: <Widget>[
-            // PM10, PM2.5 변경 버튼
-            Row(
-              children: [
-                Expanded(
-                  child: RaisedButton(
-                    color: Color(0xffffce1f),
-                    child: Text(
-                      showPM10 ? 'PM10' : 'PM2.5',
-                      style: TextStyle(
-                          color: showPM10 ? Colors.black : Colors.black,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        showPM10 = !showPM10;
-                        print(showPM10);
-                      });
-                    },
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: <Widget>[
+                  // 날짜 변경 버튼
+                  Row(
+                    children: [
+                      Expanded(
+                        child: RaisedButton(
+                          color: Color(0xffffce1f),
+                          child: Text(
+                            '${date.year}-${date.month}-${date.day}',
+                            style: TextStyle(
+                                color: showPM10 ? Colors.black : Colors.black,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          onPressed: () {
+                            showMaterialDatePicker(
+                              context: context,
+                              selectedDate: date,
+                              onChanged: (value) =>
+                                  setState(() => date = value),
+                            );
+                          },
+                        ),
+                      )
+                    ],
                   ),
-                )
-              ],
-            ),
-            // Chart
-            AspectRatio(
-              aspectRatio: 3 / 2,
-              child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(10),
-                    ),
-                    color: Colors.white),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-                  child: LineChart(
-                    showPM10 ? PM10Chart() : PM25Chart(),
+                  // PM10, PM2.5 변경 버튼
+                  Row(
+                    children: [
+                      Expanded(
+                        child: RaisedButton(
+                          color: Color(0xffffce1f),
+                          child: Text(
+                            showPM10 ? 'PM10' : 'PM2.5',
+                            style: TextStyle(
+                                color: showPM10 ? Colors.black : Colors.black,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              showPM10 = !showPM10;
+                              print(showPM10);
+                            });
+                          },
+                        ),
+                      )
+                    ],
                   ),
-                ),
-              ),
-            ),
-            // ListView
-            Expanded(
-              child: ListView(
-                children: [
-                  Card(
-                    child: ListTile(
-                      leading: Icon(
-                        Icons.circle,
-                        color: Colors.green,
-                        size: 36,
+                  // Chart
+                  AspectRatio(
+                    aspectRatio: 3 / 2,
+                    child: Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(10),
+                          ),
+                          color: Colors.white),
+                      child: Padding(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+                        child: LineChart(
+                          showPM10 ? PM10Chart() : PM25Chart(),
+                        ),
                       ),
-                      title: Text('측정기 1'),
-                      subtitle: Text('PM10 : 50          PM2.5: 20'),
-                      trailing: Icon(Icons.arrow_forward_ios_rounded),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => DetailPage()),
-                        );
-                      },
+                    ),
+                  ),
+                  // ListView
+                  Expanded(
+                    child: ListView(
+                      children: [
+                        Card(
+                          child: ListTile(
+                            leading: Icon(
+                              Icons.circle,
+                              color: Colors.green,
+                              size: 36,
+                            ),
+                            title: Text('측정기 1'),
+                            subtitle: Text('PM10 : 50          PM2.5: 20'),
+                            trailing: Icon(Icons.arrow_forward_ios_rounded),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => DetailPage()),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
     );
   }
+
+  // LoadMain(String date) async {
+  //   Map data = {'date': date};
+  //   var jsonData = null;
+  //   var response = await http.post('http://127.0.0.1:8000/api/app/main/',
+  //       body: data,
+  //       headers: <String, String>{'Authorization': "Token ${widget.user.token}"});
+  //   if (response.statusCode == 200) {
+  //     jsonData = json.decode(response.body);
+  //     setState(() {
+  //       _isLoading = false;
+  //       print(jsonData);
+  //     });
+  //   } else {
+  //     print(response.body);
+  //   }
+  // }
 
 // List Item Widget
   Widget _buildItemWidget(DeviceList deviceList) {
