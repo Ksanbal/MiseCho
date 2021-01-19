@@ -97,7 +97,7 @@ def notifications(request):
         ).c_id
 
         # 회사의 id를 가진 모든 notification 반환
-        notices = mo.Notices.objects.filter(c_id=now_c_id)
+        notices = mo.Notices.objects.filter(c_id=now_c_id).order_by('-date')
 
         if request.method == 'GET':
             serializer = se.Notification_Serializer(notices, many=True)

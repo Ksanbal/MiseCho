@@ -60,9 +60,14 @@ class Total_AvgData_Serializer(serializers.ModelSerializer):
 
 # Notice Page
 class Notification_Serializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+
+    def get_name(self, obj):
+        return obj.d_id.name
+
     class Meta:
         model = mo.Notices
-        fields = '__all__'
+        fields = ('id', 'name','date', 'content', 'd_id', 'c_id')
 
 
 # Device setting Page
@@ -75,9 +80,7 @@ class DeviceSetting_Serializer(serializers.ModelSerializer):
 class AvgData_Serializer(serializers.ModelSerializer):
     class Meta:
         model = mo.AvgDatas
-        fields = (
-            'avgpm10', 'avgpm25'
-        )
+        fields = ('avgpm10', 'avgpm25')
 
 
 # Device Data Post
