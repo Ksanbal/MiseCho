@@ -17,12 +17,22 @@ class IndexPage extends StatefulWidget {
 }
 
 class _IndexPageState extends State<IndexPage> {
+  Future<List<ChartItem>> getData;
+  Future<List<DeviceItem>> getList;
+
   List<Color> gradientColors = [
     const Color(0xff23b6e6),
     const Color(0xff02d39a),
   ];
   bool showPM10 = true;
-  var date = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    var getDate = '${nowDate.year}-${nowDate.month}-${nowDate.day}';
+    // getData = LoadChart(getDate, widget.user.token);
+    getList = LoadDevice(getDate, widget.user.token);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +66,7 @@ class _IndexPageState extends State<IndexPage> {
                   child: RaisedButton(
                     color: Color(0xffffce1f),
                     child: Text(
-                      '${date.year}-${date.month}-${date.day}',
+                      '${nowDate.year}-${nowDate.month}-${nowDate.day}',
                       style: TextStyle(
                           color: showPM10 ? Colors.black : Colors.black,
                           fontSize: 20,
@@ -65,8 +75,13 @@ class _IndexPageState extends State<IndexPage> {
                     onPressed: () {
                       showMaterialDatePicker(
                         context: context,
-                        selectedDate: date,
-                        onChanged: (value) => setState(() => date = value),
+                        selectedDate: nowDate,
+                        onChanged: (value) => setState(() => nowDate = value),
+                        onConfirmed: () {
+                          getList = LoadDevice(
+                              '${nowDate.year}-${nowDate.month}-${nowDate.day}',
+                              widget.user.token);
+                        },
                       );
                     },
                   ),
@@ -115,29 +130,21 @@ class _IndexPageState extends State<IndexPage> {
             ),
             // ListView
             Expanded(
-              child: ListView(
-                children: [
-                  Card(
-                    child: ListTile(
-                      leading: Icon(
-                        Icons.circle,
-                        color: Colors.green,
-                        size: 36,
-                      ),
-                      title: Text('측정기 1'),
-                      subtitle: Text('PM10 : 50          PM2.5: 20'),
-                      trailing: Icon(Icons.arrow_forward_ios_rounded),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => DetailPage()),
-                        );
+              child: FutureBuilder<List<DeviceItem>>(
+                future: getList,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return ListView.builder(
+                      itemCount: snapshot.data.length,
+                      itemBuilder: (context, index) {
+                        DeviceItem deviceItem = snapshot.data[index];
+                        return _buildItemWidget(deviceItem);
                       },
-                    ),
-                  ),
-                ],
+                    );
+                  }
+                },
               ),
-            ),
+            )
           ],
         ),
       ),
@@ -145,21 +152,31 @@ class _IndexPageState extends State<IndexPage> {
   }
 
 // List Item Widget
-  // Widget _buildItemWidget(DeviceList deviceList) {
-  //   return Card(
-  //     child: ListTile(
-  //       leading: Icon(
-  //         Icons.circle,
-  //         color: Colors.green,
-  //         size: 36,
-  //       ),
-  //       title: Text('측정기 1'),
-  //       subtitle: Text('PM10 : 50          PM2.5: 20'),
-  //       trailing: Icon(Icons.arrow_forward_ios_rounded),
-  //       onTap: () {},
-  //     ),
-  //   );
-  // }
+  Widget _buildItemWidget(DeviceItem deviceitem) {
+    return Card(
+      child: ListTile(
+        leading: Icon(
+          Icons.circle,
+          color: deviceitem.connect ? Colors.green : Colors.grey,
+          size: 36,
+        ),
+        title: Text(deviceitem.name),
+        subtitle: Text(
+            'PM10 : ${deviceitem.avgpm10}          PM2.5: ${deviceitem.avgpm25}'),
+        trailing: Icon(Icons.arrow_forward_ios_rounded),
+        onTap: () {
+          final device = Device(widget.user.token, deviceitem.id);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => DetailPage(
+                      device: device,
+                    )),
+          );
+        },
+      ),
+    );
+  }
 
 // 미세먼지 차트 데이터
   LineChartData PM10Chart() {
@@ -402,19 +419,16 @@ class _IndexPageState extends State<IndexPage> {
   }
 }
 
-// 메인페이지 리스트 HTTP GET
-Future<List<Item>> LoadMain(date, token) async {
-  Map data = {
-    'date': date,
-  };
-  var response = await http.post('http://127.0.0.1:8000/api/app/main/',
-      body: data, headers: <String, String>{'Authorization': "Token $token"});
+// 메인페이지 Chart 데이터 HTTP GET
+Future<List<ChartItem>> LoadChart(date, token) async {
+  var response = await http.get('$apiUrl/api/app/main/chart/$date/',
+      headers: <String, String>{'Authorization': "Token $token"});
 
   if (response.statusCode == 200) {
     List jsonList = jsonDecode(utf8.decode(response.bodyBytes));
 
-    var getList = jsonList.map((element) => Item.fromJson(element)).toList();
-
+    var getList =
+        jsonList.map((element) => ChartItem.fromJson(element)).toList();
     return getList;
   } else {
     throw Exception('Faild to load Get');
@@ -433,6 +447,23 @@ class ChartItem {
       avgpm10: json['avgpm10'],
       avgpm25: json['avgpm25'],
     );
+  }
+}
+
+// 메인페이지 디바이스 리스트 HTTP GET
+Future<List<DeviceItem>> LoadDevice(date, token) async {
+  var response = await http.get('$apiUrl/api/app/main/device/$date/',
+      headers: <String, String>{'Authorization': "Token $token"});
+
+  if (response.statusCode == 200) {
+    List jsonList = jsonDecode(utf8.decode(response.bodyBytes));
+
+    var getList =
+        jsonList.map((element) => DeviceItem.fromJson(element)).toList();
+
+    return getList;
+  } else {
+    throw Exception('Faild to load Get');
   }
 }
 
