@@ -8,16 +8,6 @@ import 'package:http/http.dart' as http;
 import 'main.dart';
 import 'notification_page.dart';
 
-class DeviceList {
-  int no;
-  String title;
-  bool isconnect = false;
-  int avgpm10;
-  int avgpm25;
-
-  DeviceList(this.title);
-}
-
 class IndexPage extends StatefulWidget {
   final User user;
   IndexPage({Key key, @required this.user}) : super(key: key);
@@ -27,21 +17,12 @@ class IndexPage extends StatefulWidget {
 }
 
 class _IndexPageState extends State<IndexPage> {
-  bool _isLoading = false;
-  final _items = <DeviceList>[];
-
   List<Color> gradientColors = [
     const Color(0xff23b6e6),
     const Color(0xff02d39a),
   ];
   bool showPM10 = true;
   var date = DateTime.now();
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   LoadMain('2021-01-14');
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -64,143 +45,121 @@ class _IndexPageState extends State<IndexPage> {
           )
         ],
       ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                children: <Widget>[
-                  // 날짜 변경 버튼
-                  Row(
-                    children: [
-                      Expanded(
-                        child: RaisedButton(
-                          color: Color(0xffffce1f),
-                          child: Text(
-                            '${date.year}-${date.month}-${date.day}',
-                            style: TextStyle(
-                                color: showPM10 ? Colors.black : Colors.black,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          onPressed: () {
-                            showMaterialDatePicker(
-                              context: context,
-                              selectedDate: date,
-                              onChanged: (value) =>
-                                  setState(() => date = value),
-                            );
-                          },
-                        ),
-                      )
-                    ],
-                  ),
-                  // PM10, PM2.5 변경 버튼
-                  Row(
-                    children: [
-                      Expanded(
-                        child: RaisedButton(
-                          color: Color(0xffffce1f),
-                          child: Text(
-                            showPM10 ? 'PM10' : 'PM2.5',
-                            style: TextStyle(
-                                color: showPM10 ? Colors.black : Colors.black,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              showPM10 = !showPM10;
-                              print(showPM10);
-                            });
-                          },
-                        ),
-                      )
-                    ],
-                  ),
-                  // Chart
-                  AspectRatio(
-                    aspectRatio: 3 / 2,
-                    child: Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(10),
-                          ),
-                          color: Colors.white),
-                      child: Padding(
-                        padding:
-                            EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-                        child: LineChart(
-                          showPM10 ? PM10Chart() : PM25Chart(),
-                        ),
-                      ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: <Widget>[
+            // 날짜 변경 버튼
+            Row(
+              children: [
+                Expanded(
+                  child: RaisedButton(
+                    color: Color(0xffffce1f),
+                    child: Text(
+                      '${date.year}-${date.month}-${date.day}',
+                      style: TextStyle(
+                          color: showPM10 ? Colors.black : Colors.black,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold),
                     ),
+                    onPressed: () {
+                      showMaterialDatePicker(
+                        context: context,
+                        selectedDate: date,
+                        onChanged: (value) => setState(() => date = value),
+                      );
+                    },
                   ),
-                  // ListView
-                  Expanded(
-                    child: ListView(
-                      children: [
-                        Card(
-                          child: ListTile(
-                            leading: Icon(
-                              Icons.circle,
-                              color: Colors.green,
-                              size: 36,
-                            ),
-                            title: Text('측정기 1'),
-                            subtitle: Text('PM10 : 50          PM2.5: 20'),
-                            trailing: Icon(Icons.arrow_forward_ios_rounded),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => DetailPage()),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
+                )
+              ],
+            ),
+            // PM10, PM2.5 변경 버튼
+            Row(
+              children: [
+                Expanded(
+                  child: RaisedButton(
+                    color: Color(0xffffce1f),
+                    child: Text(
+                      showPM10 ? 'PM10' : 'PM2.5',
+                      style: TextStyle(
+                          color: showPM10 ? Colors.black : Colors.black,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        showPM10 = !showPM10;
+                        print(showPM10);
+                      });
+                    },
+                  ),
+                )
+              ],
+            ),
+            // Chart
+            AspectRatio(
+              aspectRatio: 3 / 2,
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(10),
+                    ),
+                    color: Colors.white),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+                  child: LineChart(
+                    showPM10 ? PM10Chart() : PM25Chart(),
+                  ),
+                ),
+              ),
+            ),
+            // ListView
+            Expanded(
+              child: ListView(
+                children: [
+                  Card(
+                    child: ListTile(
+                      leading: Icon(
+                        Icons.circle,
+                        color: Colors.green,
+                        size: 36,
+                      ),
+                      title: Text('측정기 1'),
+                      subtitle: Text('PM10 : 50          PM2.5: 20'),
+                      trailing: Icon(Icons.arrow_forward_ios_rounded),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => DetailPage()),
+                        );
+                      },
                     ),
                   ),
                 ],
               ),
             ),
-    );
-  }
-
-  // LoadMain(String date) async {
-  //   Map data = {'date': date};
-  //   var jsonData = null;
-  //   var response = await http.post('http://127.0.0.1:8000/api/app/main/',
-  //       body: data,
-  //       headers: <String, String>{'Authorization': "Token ${widget.user.token}"});
-  //   if (response.statusCode == 200) {
-  //     jsonData = json.decode(response.body);
-  //     setState(() {
-  //       _isLoading = false;
-  //       print(jsonData);
-  //     });
-  //   } else {
-  //     print(response.body);
-  //   }
-  // }
-
-// List Item Widget
-  Widget _buildItemWidget(DeviceList deviceList) {
-    return Card(
-      child: ListTile(
-        leading: Icon(
-          Icons.circle,
-          color: Colors.green,
-          size: 36,
+          ],
         ),
-        title: Text('측정기 1'),
-        subtitle: Text('PM10 : 50          PM2.5: 20'),
-        trailing: Icon(Icons.arrow_forward_ios_rounded),
-        onTap: () {},
       ),
     );
   }
+
+// List Item Widget
+  // Widget _buildItemWidget(DeviceList deviceList) {
+  //   return Card(
+  //     child: ListTile(
+  //       leading: Icon(
+  //         Icons.circle,
+  //         color: Colors.green,
+  //         size: 36,
+  //       ),
+  //       title: Text('측정기 1'),
+  //       subtitle: Text('PM10 : 50          PM2.5: 20'),
+  //       trailing: Icon(Icons.arrow_forward_ios_rounded),
+  //       onTap: () {},
+  //     ),
+  //   );
+  // }
 
 // 미세먼지 차트 데이터
   LineChartData PM10Chart() {
@@ -439,6 +398,61 @@ class _IndexPageState extends State<IndexPage> {
           ),
         ),
       ],
+    );
+  }
+}
+
+// 메인페이지 리스트 HTTP GET
+Future<List<Item>> LoadMain(date, token) async {
+  Map data = {
+    'date': date,
+  };
+  var response = await http.post('http://127.0.0.1:8000/api/app/main/',
+      body: data, headers: <String, String>{'Authorization': "Token $token"});
+
+  if (response.statusCode == 200) {
+    List jsonList = jsonDecode(utf8.decode(response.bodyBytes));
+
+    var getList = jsonList.map((element) => Item.fromJson(element)).toList();
+
+    return getList;
+  } else {
+    throw Exception('Faild to load Get');
+  }
+}
+
+// 메인페이지 차트 데이터 class
+class ChartItem {
+  final int avgpm10;
+  final int avgpm25;
+
+  ChartItem({this.avgpm10, this.avgpm25});
+
+  factory ChartItem.fromJson(Map<String, dynamic> json) {
+    return ChartItem(
+      avgpm10: json['avgpm10'],
+      avgpm25: json['avgpm25'],
+    );
+  }
+}
+
+// 메인페이지 디바이스 리스트 class
+class DeviceItem {
+  final int id;
+  final String name;
+  final bool connect;
+  final int avgpm10;
+  final int avgpm25;
+
+  DeviceItem({this.id, this.name, this.connect, this.avgpm10, this.avgpm25});
+
+  factory DeviceItem.fromJson(Map<String, dynamic> json) {
+    return DeviceItem(
+      id: json['id'],
+      name: json['name'],
+      connect: json['connect'],
+      avgpm10: json['avgpm10'],
+      avgpm25: json['avgpm25'],
     );
   }
 }

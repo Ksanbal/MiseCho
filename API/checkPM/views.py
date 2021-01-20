@@ -55,11 +55,12 @@ def signin(request):
 
 
 # Main Page
+# Chart Data
 @api_view(['GET'])
-def main(request):
+def main_chart(request, date):
     if request.user.username != 'AnonymousUser':
         now_user = request.user
-        date = [int(i) for i in request.data['date'].split('-')]
+        date = [int(i) for i in date.split('-')]
         date = datetime(date[0], date[1], date[2])
 
         # 전체 평균 data
@@ -67,6 +68,18 @@ def main(request):
             date=date, c_id=mo.Profile.objects.get(user_id=now_user).c_id
         )
         avg_serializer = se.Total_AvgData_Serializer(myAVG, many=True)
+        return Response(avg_serializer.data, status=status.HTTP_200_OK)
+    else:
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
+# Device List
+@api_view(['GET'])
+def main_device(request, date):
+    if request.user.username != 'AnonymousUser':
+        now_user = request.user
+        date = [int(i) for i in date.split('-')]
+        date = datetime(date[0], date[1], date[2])
 
         # 측정기 list (id, 이름, 연결상태, 현재날짜 평균 pm10, 현재날짜 평균 pm25)
         myDevices = mo.Devices.objects.filter(c_id=mo.Profile.objects.get(user_id=now_user).c_id)
@@ -82,7 +95,7 @@ def main(request):
             i.save()
 
         deviceList_serializer = se.MainDeviceList_Serialzier(myDevices, many=True)
-        return Response([avg_serializer.data, deviceList_serializer.data], status=status.HTTP_200_OK)
+        return Response(deviceList_serializer.data, status=status.HTTP_200_OK)
     else:
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
@@ -117,8 +130,28 @@ def check_device_auth(user, device_id):
 
 
 # Device setting Page
+# Device Chart Data
+@api_view(['GET'])
+def device_setting_chart(request, device_id, date):
+    # Found Check
+    try:
+        device = mo.Devices.objects.get(id=device_id)
+    except device.DoesNotExist:
+        return Response('디바이스를 찾지 못했습니다.', status=status.HTTP_404_NOT_FOUND)
+
+    if check_device_auth(request.user, device_id):
+        # 해당 디바이스 선택날짜 시간대별 데이터
+        date = [int(i) for i in date.split('-')]
+        avgdatas = mo.AvgDatas.objects.filter(date=datetime(date[0], date[1], date[2]), d_id=device)
+        avgdata_serializer = se.AvgData_Serializer(avgdatas, many=True)
+
+        return Response(avgdata_serializer.data, status=status.HTTP_200_OK)
+    return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
+# Device Setting Value
 @api_view(['GET', 'PUT', 'PATCH'])
-def device_setting(request, device_id):
+def device_setting_value(request, device_id):
     # Found Check
     try:
         device = mo.Devices.objects.get(id=device_id)
@@ -128,14 +161,9 @@ def device_setting(request, device_id):
     if check_device_auth(request.user, device_id):
         # GET
         if request.method == 'GET':
-            # 해당 디바이스 선택날짜 시간대별 데이터
-            date = [int(i) for i in request.data['date'].split('-')]
-            avgdatas = mo.AvgDatas.objects.filter(date=datetime(date[0], date[1], date[2]), d_id=device)
-            avgdata_serializer = se.AvgData_Serializer(avgdatas, many=True)
-
             # 디바이스 설정 정보
             device_serializer = se.DeviceSetting_Serializer(device)
-            return Response([avgdata_serializer.data, device_serializer.data], status=status.HTTP_200_OK)
+            return Response(device_serializer.data, status=status.HTTP_200_OK)
         # PUT
         elif request.method == 'PUT':
             serializer = se.DeviceSetting_Serializer(device, data=request.data)
