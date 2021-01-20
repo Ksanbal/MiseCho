@@ -3,12 +3,7 @@ import 'dart:convert'; // JSON Parsing 패키지
 import 'package:http/http.dart' as http; // http 통신 패키지
 
 import 'index_page.dart';
-
-class User {
-  String token;
-
-  User(this.token);
-}
+import 'main.dart';
 
 class LoginPage extends StatefulWidget {
   @override

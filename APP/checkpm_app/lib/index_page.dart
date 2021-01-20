@@ -5,8 +5,8 @@ import 'package:flutter_material_pickers/flutter_material_pickers.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+import 'main.dart';
 import 'notification_page.dart';
-import 'login_page.dart';
 
 class DeviceList {
   int no;
@@ -233,7 +233,6 @@ class _IndexPageState extends State<IndexPage> {
             fontSize: 15,
           ),
           getTitles: (value) {
-            print('bottomTitles $value');
             switch (value.toInt()) {
               case 0:
                 return '0';
@@ -266,7 +265,6 @@ class _IndexPageState extends State<IndexPage> {
             fontSize: 15,
           ),
           getTitles: (value) {
-            print('leftTitles $value');
             switch (value.toInt()) {
               case 10:
                 return '좋음';
@@ -355,7 +353,6 @@ class _IndexPageState extends State<IndexPage> {
             fontSize: 15,
           ),
           getTitles: (value) {
-            print('bottomTitles $value');
             switch (value.toInt()) {
               case 0:
                 return '0';
@@ -388,7 +385,6 @@ class _IndexPageState extends State<IndexPage> {
             fontSize: 15,
           ),
           getTitles: (value) {
-            print('leftTitles $value');
             switch (value.toInt()) {
               case 10:
                 return '좋음';

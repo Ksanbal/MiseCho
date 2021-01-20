@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_material_pickers/flutter_material_pickers.dart';
 
+import 'main.dart';
+
 class DetailPage extends StatefulWidget {
+  final Device device;
+  DetailPage({Key key, @required this.device}) : super(key: key);
+
   @override
   _DetailPageState createState() => _DetailPageState();
 }
@@ -17,6 +22,7 @@ class _DetailPageState extends State<DetailPage> {
   void initState() {
     super.initState();
     isShowingMainData = true;
+    print(widget.device.device_id);
   }
 
   // Picker's items

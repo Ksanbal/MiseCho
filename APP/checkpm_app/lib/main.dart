@@ -18,3 +18,16 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+class User {
+  String token;
+
+  User(this.token);
+}
+
+class Device {
+  String token;
+  int device_id;
+
+  Device(this.token, this.device_id);
+}
