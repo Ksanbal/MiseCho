@@ -31,3 +31,6 @@ class Device {
 
   Device(this.token, this.device_id);
 }
+
+final String apiUrl = 'http://127.0.0.1:8000';
+var nowDate = DateTime.now();

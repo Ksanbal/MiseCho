@@ -79,7 +79,7 @@ class _NotificationPageState extends State<NotificationPage> {
 
 // 알림 리스트 페이지 HTTP GET
 Future<List<Item>> LoadNoti(token) async {
-  var response = await http.get('http://127.0.0.1:8000/api/app/notice/',
+  var response = await http.get('$apiUrl/api/app/notice/',
       headers: <String, String>{'Authorization': "Token $token"});
   if (response.statusCode == 200) {
     List jsonList = jsonDecode(utf8.decode(response.bodyBytes));
