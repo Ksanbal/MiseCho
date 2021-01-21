@@ -28,6 +28,16 @@ class _NotificationPageState extends State<NotificationPage> {
       backgroundColor: Color(0xfff0f0f0),
       appBar: AppBar(
         title: Text('Notification'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: () {
+              setState(() {
+                getList = LoadNoti(widget.user.token);
+              });
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
