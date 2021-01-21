@@ -131,18 +131,13 @@ class _IndexPageState extends State<IndexPage> {
                     color: Colors.white),
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-                  child: LineChart(isEmptyChart
-                      ? EmptyChart()
-                      : showPM10
-                          ? PM10Chart()
-                          : PM25Chart()),
-                  // child: isEmptyChart
-                  //     ? Center(
-                  //         child: CircularProgressIndicator(),
-                  //       )
-                  //     : LineChart(
-                  //         showPM10 ? PM10Chart() : PM25Chart(),
-                  //       ),
+                  child: LineChart(
+                    isEmptyChart
+                        ? EmptyChart()
+                        : showPM10
+                            ? PM10Chart()
+                            : PM25Chart(),
+                  ),
                 ),
               ),
             ),
@@ -182,7 +177,7 @@ class _IndexPageState extends State<IndexPage> {
         ),
         title: Text(deviceitem.name),
         subtitle: Text(
-            'PM10 : ${deviceitem.avgpm10}          PM2.5: ${deviceitem.avgpm25}'),
+            'PM10 : ${deviceitem.avgpm10.toStringAsFixed(1)}          PM2.5: ${deviceitem.avgpm25.toStringAsFixed(1)}'),
         trailing: Icon(Icons.arrow_forward_ios_rounded),
         onTap: () {
           final device = Device(widget.user.token, deviceitem.id);
