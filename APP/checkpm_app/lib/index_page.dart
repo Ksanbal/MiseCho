@@ -367,18 +367,26 @@ class _IndexPageState extends State<IndexPage> {
           getTextStyles: (value) => const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
-            fontSize: 15,
+            fontSize: 10,
           ),
           getTitles: (value) {
             switch (value.toInt()) {
-              case 10:
+              case 0:
+                return '최고';
+              case 15:
                 return '좋음';
               case 30:
+                return '양호';
+              case 40:
                 return '보통';
-              case 80:
+              case 50:
                 return '나쁨';
-              case 150:
+              case 75:
+                return '상당히 나쁨';
+              case 100:
                 return '매우 나쁨';
+              case 150:
+                return '최악';
             }
             return '';
           },
@@ -473,18 +481,26 @@ class _IndexPageState extends State<IndexPage> {
           getTextStyles: (value) => const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
-            fontSize: 15,
+            fontSize: 10,
           ),
           getTitles: (value) {
             switch (value.toInt()) {
+              case 0:
+                return '최고';
               case 10:
                 return '좋음';
-              case 30:
+              case 15:
+                return '양호';
+              case 20:
                 return '보통';
-              case 80:
+              case 25:
                 return '나쁨';
-              case 150:
+              case 35:
+                return '상당히 나쁨';
+              case 50:
                 return '매우 나쁨';
+              case 75:
+                return '최악';
             }
             return '';
           },
@@ -498,7 +514,7 @@ class _IndexPageState extends State<IndexPage> {
       minX: 0,
       maxX: 24,
       minY: 0,
-      maxY: 160,
+      maxY: 80,
       lineBarsData: [
         LineChartBarData(
           spots: pm25Spot, // 데이터 Spot 자리
@@ -519,6 +535,7 @@ class _IndexPageState extends State<IndexPage> {
     );
   }
 
+// 메인페이지 Chart 데이터 HTTP GET
   LoadChart(date, token) async {
     List<double> pm10value = List<double>();
     List<double> pm25value = List<double>();
@@ -556,38 +573,6 @@ class _IndexPageState extends State<IndexPage> {
     }
   }
 }
-
-// 메인페이지 Chart 데이터 HTTP GET
-// LoadChart(date, token) async {
-//   List<double> pm10value = List<double>();
-//   List<double> pm25value = List<double>();
-
-//   var response = await http.get('$apiUrl/api/app/main/chart/$date/',
-//       headers: <String, String>{'Authorization': "Token $token"});
-
-//   if (response.statusCode == 200) {
-//     List jsonList = jsonDecode(utf8.decode(response.bodyBytes));
-//     if (jsonList.isEmpty) {
-//       isEmptyChart = true;
-//     } else {
-//       isEmptyChart = false;
-//       // for 돌려서 리스트로 변환
-//       for (var i in jsonList) {
-//         pm10value.add(i['avgpm10']);
-//         pm25value.add(i['avgpm25']);
-//       }
-//       // 리스트를 FlSpot으로 변환
-//       pm10Spot = pm10value.asMap().entries.map((e) {
-//         return FlSpot(e.key.toDouble(), e.value);
-//       }).toList();
-//       pm25Spot = pm25value.asMap().entries.map((e) {
-//         return FlSpot(e.key.toDouble(), e.value);
-//       }).toList();
-//     }
-//   } else {
-//     throw Exception('Faild to load Get');
-//   }
-// }
 
 // 메인페이지 디바이스 리스트 HTTP GET
 Future<List<DeviceItem>> LoadDevice(date, token) async {
