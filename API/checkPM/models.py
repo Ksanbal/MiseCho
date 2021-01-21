@@ -21,8 +21,8 @@ class Devices(models.Model):
     work_s = models.CharField(max_length=4, default='0900')
     work_e = models.CharField(max_length=4, default='1800')
     comment = models.TextField(null=True)
-    avgpm10 = models.FloatField(null=True)
-    avgpm25 = models.FloatField(null=True)
+    avgpm10 = models.FloatField(default=0)
+    avgpm25 = models.FloatField(default=0)
     c_id = models.ForeignKey(Companys, on_delete=models.CASCADE, db_column='c_id')
 
 

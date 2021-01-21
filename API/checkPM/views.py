@@ -88,10 +88,18 @@ def main_device(request, date):
                 date=date,
                 d_id=i.id
             ).aggregate(Avg('avgpm10'))['avgpm10__avg']
+
+            if i.avgpm10 is None:
+                i.avgpm10 = 0
+
             i.avgpm25 = mo.AvgDatas.objects.filter(
                 date=date,
                 d_id=i.id
             ).aggregate(Avg('avgpm25'))['avgpm25__avg']
+
+            if i.avgpm25 is None:
+                i.avgpm25 = 0
+
             i.save()
 
         deviceList_serializer = se.MainDeviceList_Serialzier(myDevices, many=True)
