@@ -21,8 +21,8 @@ class Devices(models.Model):
     work_s = models.CharField(max_length=4, default='0900')
     work_e = models.CharField(max_length=4, default='1800')
     comment = models.TextField(null=True)
-    avgpm10 = models.IntegerField(null=True)
-    avgpm25 = models.IntegerField(null=True)
+    avgpm10 = models.FloatField(null=True)
+    avgpm25 = models.FloatField(null=True)
     c_id = models.ForeignKey(Companys, on_delete=models.CASCADE, db_column='c_id')
 
 
@@ -36,16 +36,16 @@ class Notices(models.Model):
 class RawDatas(models.Model):
     date = models.DateField(auto_now_add=True)
     time = models.TimeField(auto_now_add=True)
-    pm10 = models.IntegerField()
-    pm25 = models.IntegerField()
+    pm10 = models.FloatField()
+    pm25 = models.FloatField()
     d_id = models.ForeignKey(Devices, on_delete=models.CASCADE, db_column='d_id')
 
 
 class AvgDatas(models.Model):
     date = models.DateField(auto_now_add=True)
     time = models.TimeField(auto_now_add=True)
-    avgpm10 = models.IntegerField()
-    avgpm25 = models.IntegerField()
+    avgpm10 = models.FloatField()
+    avgpm25 = models.FloatField()
     d_id = models.ForeignKey(Devices, on_delete=models.CASCADE, db_column='d_id')
     c_id = models.ForeignKey(Companys, on_delete=models.CASCADE, db_column='c_id')
 
@@ -53,6 +53,6 @@ class AvgDatas(models.Model):
 class TotalAvgDatas(models.Model):
     date = models.DateField(auto_now_add=True)
     time = models.TimeField(auto_now_add=True)
-    avgpm10 = models.IntegerField()
-    avgpm25 = models.IntegerField()
+    avgpm10 = models.FloatField()
+    avgpm25 = models.FloatField()
     c_id = models.ForeignKey(Companys, on_delete=models.CASCADE, db_column='c_id')
