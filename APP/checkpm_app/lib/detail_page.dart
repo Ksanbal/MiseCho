@@ -206,9 +206,11 @@ class _DetailPageState extends State<DetailPage> {
                         minNumber: 1,
                         maxNumber: 60,
                         selectedNumber: PMFre,
-                        onChanged: (value) => setState(() => PMFre = value),
+                        onChanged: (value) => setState(() {
+                          PMFre = value;
+                          isChanged = true;
+                        }),
                       );
-                      isChanged = true;
                     },
                   ),
                 ),
@@ -237,10 +239,11 @@ class _DetailPageState extends State<DetailPage> {
                         title: '위험 미세먼지 정도',
                         items: PMNotice,
                         selectedItem: selectedPMNotice,
-                        onChanged: (value) =>
-                            setState(() => selectedPMNotice = value),
+                        onChanged: (value) => setState(() {
+                          selectedPMNotice = value;
+                          isChanged = true;
+                        }),
                       );
-                      isChanged = true;
                     },
                   ),
                 ),
@@ -270,10 +273,11 @@ class _DetailPageState extends State<DetailPage> {
                         minNumber: 1,
                         maxNumber: 100,
                         selectedNumber: DataNotice,
-                        onChanged: (value) =>
-                            setState(() => DataNotice = value),
+                        onChanged: (value) => setState(() {
+                          DataNotice = value;
+                          isChanged = true;
+                        }),
                       );
-                      isChanged = true;
                     },
                   ),
                 ),
@@ -309,10 +313,11 @@ class _DetailPageState extends State<DetailPage> {
                             context: context,
                             title: '종료시간',
                             selectedTime: stopTime,
-                            onChanged: (value) =>
-                                setState(() => stopTime = value),
+                            onChanged: (value) => setState(() {
+                              stopTime = value;
+                              isChanged = true;
+                            }),
                           );
-                          isChanged = true;
                         },
                       );
                     },
