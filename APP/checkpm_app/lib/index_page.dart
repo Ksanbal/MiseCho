@@ -81,15 +81,17 @@ class _IndexPageState extends State<IndexPage> {
                       showMaterialDatePicker(
                         context: context,
                         selectedDate: nowDate,
-                        onChanged: (value) => setState(() => nowDate = value),
-                        onConfirmed: () {
-                          LoadChart(
-                              '${nowDate.year}-${nowDate.month}-${nowDate.day}',
-                              widget.user.token);
-                          getList = LoadDevice(
-                              '${nowDate.year}-${nowDate.month}-${nowDate.day}',
-                              widget.user.token);
-                        },
+                        onChanged: (value) => setState(
+                          () {
+                            nowDate = value;
+                            LoadChart(
+                                '${nowDate.year}-${nowDate.month}-${nowDate.day}',
+                                widget.user.token);
+                            getList = LoadDevice(
+                                '${nowDate.year}-${nowDate.month}-${nowDate.day}',
+                                widget.user.token);
+                          },
+                        ),
                       );
                     },
                   ),
