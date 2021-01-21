@@ -8,6 +8,12 @@ import 'package:http/http.dart' as http;
 import 'main.dart';
 import 'notification_page.dart';
 
+bool isEmptyChart = true;
+bool isEmptyDevice = false;
+
+List<FlSpot> pm10Spot = [];
+List<FlSpot> pm25Spot = [];
+
 class IndexPage extends StatefulWidget {
   final User user;
   IndexPage({Key key, @required this.user}) : super(key: key);
@@ -17,7 +23,6 @@ class IndexPage extends StatefulWidget {
 }
 
 class _IndexPageState extends State<IndexPage> {
-  Future<List<ChartItem>> getData;
   Future<List<DeviceItem>> getList;
 
   List<Color> gradientColors = [
@@ -30,7 +35,7 @@ class _IndexPageState extends State<IndexPage> {
   void initState() {
     super.initState();
     var getDate = '${nowDate.year}-${nowDate.month}-${nowDate.day}';
-    // getData = LoadChart(getDate, widget.user.token);
+    LoadChart(getDate, widget.user.token);
     getList = LoadDevice(getDate, widget.user.token);
   }
 
@@ -78,6 +83,9 @@ class _IndexPageState extends State<IndexPage> {
                         selectedDate: nowDate,
                         onChanged: (value) => setState(() => nowDate = value),
                         onConfirmed: () {
+                          LoadChart(
+                              '${nowDate.year}-${nowDate.month}-${nowDate.day}',
+                              widget.user.token);
                           getList = LoadDevice(
                               '${nowDate.year}-${nowDate.month}-${nowDate.day}',
                               widget.user.token);
@@ -104,7 +112,6 @@ class _IndexPageState extends State<IndexPage> {
                     onPressed: () {
                       setState(() {
                         showPM10 = !showPM10;
-                        print(showPM10);
                       });
                     },
                   ),
@@ -122,28 +129,39 @@ class _IndexPageState extends State<IndexPage> {
                     color: Colors.white),
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-                  child: LineChart(
-                    showPM10 ? PM10Chart() : PM25Chart(),
-                  ),
+                  child: LineChart(isEmptyChart
+                      ? EmptyChart()
+                      : showPM10
+                          ? PM10Chart()
+                          : PM25Chart()),
+                  // child: isEmptyChart
+                  //     ? Center(
+                  //         child: CircularProgressIndicator(),
+                  //       )
+                  //     : LineChart(
+                  //         showPM10 ? PM10Chart() : PM25Chart(),
+                  //       ),
                 ),
               ),
             ),
             // ListView
             Expanded(
-              child: FutureBuilder<List<DeviceItem>>(
-                future: getList,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return ListView.builder(
-                      itemCount: snapshot.data.length,
-                      itemBuilder: (context, index) {
-                        DeviceItem deviceItem = snapshot.data[index];
-                        return _buildItemWidget(deviceItem);
+              child: isEmptyDevice
+                  ? Center(child: CircularProgressIndicator())
+                  : FutureBuilder<List<DeviceItem>>(
+                      future: getList,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          return ListView.builder(
+                            itemCount: snapshot.data.length,
+                            itemBuilder: (context, index) {
+                              DeviceItem deviceItem = snapshot.data[index];
+                              return _buildItemWidget(deviceItem);
+                            },
+                          );
+                        }
                       },
-                    );
-                  }
-                },
-              ),
+                    ),
             )
           ],
         ),
@@ -169,9 +187,10 @@ class _IndexPageState extends State<IndexPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => DetailPage(
-                      device: device,
-                    )),
+              builder: (context) => DetailPage(
+                device: device,
+              ),
+            ),
           );
         },
       ),
@@ -179,6 +198,114 @@ class _IndexPageState extends State<IndexPage> {
   }
 
 // 미세먼지 차트 데이터
+  // 비어있는 차트
+  LineChartData EmptyChart() {
+    return LineChartData(
+      gridData: FlGridData(
+        show: true,
+        drawVerticalLine: false,
+        drawHorizontalLine: false,
+        getDrawingHorizontalLine: (value) {
+          return FlLine(
+            color: Colors.grey,
+            strokeWidth: 1,
+          );
+        },
+        getDrawingVerticalLine: (value) {
+          return FlLine(
+            color: Colors.grey,
+            strokeWidth: 1,
+          );
+        },
+      ),
+      titlesData: FlTitlesData(
+        show: true,
+        bottomTitles: SideTitles(
+          showTitles: true,
+          reservedSize: 22,
+          getTextStyles: (value) => const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
+          ),
+          getTitles: (value) {
+            switch (value.toInt()) {
+              case 0:
+                return '0';
+              case 3:
+                return '3';
+              case 6:
+                return '6';
+              case 9:
+                return '9';
+              case 12:
+                return '12';
+              case 15:
+                return '15';
+              case 18:
+                return '18';
+              case 21:
+                return '21';
+              case 24:
+                return '24';
+            }
+            return '';
+          },
+          margin: 8,
+        ),
+        leftTitles: SideTitles(
+          showTitles: true,
+          getTextStyles: (value) => const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
+          ),
+          getTitles: (value) {
+            switch (value.toInt()) {
+              case 10:
+                return '좋음';
+              case 30:
+                return '보통';
+              case 80:
+                return '나쁨';
+              case 150:
+                return '매우 나쁨';
+            }
+            return '';
+          },
+          reservedSize: 45,
+          margin: 12,
+        ),
+      ),
+      borderData: FlBorderData(
+          show: true,
+          border: Border.all(color: const Color(0xff37434d), width: 1)),
+      minX: 0,
+      maxX: 24,
+      minY: 0,
+      maxY: 160,
+      lineBarsData: [
+        LineChartBarData(
+          spots: [FlSpot(0, 0)],
+          show: false,
+          isCurved: true,
+          colors: gradientColors,
+          barWidth: 5,
+          isStrokeCapRound: true,
+          dotData: FlDotData(
+            show: true,
+          ),
+          belowBarData: BarAreaData(
+            show: true,
+            colors:
+                gradientColors.map((color) => color.withOpacity(0.3)).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 미세먼지 차트 데이터
   LineChartData PM10Chart() {
     return LineChartData(
       gridData: FlGridData(
@@ -266,21 +393,7 @@ class _IndexPageState extends State<IndexPage> {
       maxY: 160,
       lineBarsData: [
         LineChartBarData(
-          spots: [
-            FlSpot(0, 30),
-            FlSpot(1, 50),
-            FlSpot(2, 100),
-            FlSpot(3, 141),
-            FlSpot(4, 90),
-            FlSpot(5, 75),
-            FlSpot(6, 55),
-            FlSpot(7, 47),
-            FlSpot(8, 31),
-            FlSpot(9, 29),
-            FlSpot(10, 37),
-            FlSpot(11, 46),
-            FlSpot(12, 50),
-          ],
+          spots: pm10Spot,
           isCurved: true,
           colors: gradientColors,
           barWidth: 5,
@@ -386,21 +499,7 @@ class _IndexPageState extends State<IndexPage> {
       maxY: 160,
       lineBarsData: [
         LineChartBarData(
-          spots: [
-            FlSpot(0, 10),
-            FlSpot(1, 30),
-            FlSpot(2, 70),
-            FlSpot(3, 35),
-            FlSpot(4, 55),
-            FlSpot(5, 32),
-            FlSpot(6, 80),
-            FlSpot(7, 90),
-            FlSpot(8, 65),
-            FlSpot(9, 60),
-            FlSpot(10, 56),
-            FlSpot(11, 42),
-            FlSpot(12, 20),
-          ],
+          spots: pm25Spot, // 데이터 Spot 자리
           isCurved: true,
           colors: gradientColors,
           barWidth: 5,
@@ -417,38 +516,76 @@ class _IndexPageState extends State<IndexPage> {
       ],
     );
   }
+
+  LoadChart(date, token) async {
+    List<double> pm10value = List<double>();
+    List<double> pm25value = List<double>();
+
+    var response = await http.get('$apiUrl/api/app/main/chart/$date/',
+        headers: <String, String>{'Authorization': "Token $token"});
+
+    if (response.statusCode == 200) {
+      List jsonList = jsonDecode(utf8.decode(response.bodyBytes));
+      if (jsonList.isEmpty) {
+        setState(() {
+          isEmptyChart = true;
+        });
+      } else {
+        // for 돌려서 리스트로 변환
+        for (var i in jsonList) {
+          pm10value.add(i['avgpm10']);
+          pm25value.add(i['avgpm25']);
+        }
+        // 리스트를 FlSpot으로 변환
+        setState(
+          () {
+            isEmptyChart = false;
+            pm10Spot = pm10value.asMap().entries.map((e) {
+              return FlSpot(e.key.toDouble(), e.value);
+            }).toList();
+            pm25Spot = pm25value.asMap().entries.map((e) {
+              return FlSpot(e.key.toDouble(), e.value);
+            }).toList();
+          },
+        );
+      }
+    } else {
+      throw Exception('Faild to load Get');
+    }
+  }
 }
 
 // 메인페이지 Chart 데이터 HTTP GET
-Future<List<ChartItem>> LoadChart(date, token) async {
-  var response = await http.get('$apiUrl/api/app/main/chart/$date/',
-      headers: <String, String>{'Authorization': "Token $token"});
+// LoadChart(date, token) async {
+//   List<double> pm10value = List<double>();
+//   List<double> pm25value = List<double>();
 
-  if (response.statusCode == 200) {
-    List jsonList = jsonDecode(utf8.decode(response.bodyBytes));
+//   var response = await http.get('$apiUrl/api/app/main/chart/$date/',
+//       headers: <String, String>{'Authorization': "Token $token"});
 
-    var getList =
-        jsonList.map((element) => ChartItem.fromJson(element)).toList();
-    return getList;
-  } else {
-    throw Exception('Faild to load Get');
-  }
-}
-
-// 메인페이지 차트 데이터 class
-class ChartItem {
-  final int avgpm10;
-  final int avgpm25;
-
-  ChartItem({this.avgpm10, this.avgpm25});
-
-  factory ChartItem.fromJson(Map<String, dynamic> json) {
-    return ChartItem(
-      avgpm10: json['avgpm10'],
-      avgpm25: json['avgpm25'],
-    );
-  }
-}
+//   if (response.statusCode == 200) {
+//     List jsonList = jsonDecode(utf8.decode(response.bodyBytes));
+//     if (jsonList.isEmpty) {
+//       isEmptyChart = true;
+//     } else {
+//       isEmptyChart = false;
+//       // for 돌려서 리스트로 변환
+//       for (var i in jsonList) {
+//         pm10value.add(i['avgpm10']);
+//         pm25value.add(i['avgpm25']);
+//       }
+//       // 리스트를 FlSpot으로 변환
+//       pm10Spot = pm10value.asMap().entries.map((e) {
+//         return FlSpot(e.key.toDouble(), e.value);
+//       }).toList();
+//       pm25Spot = pm25value.asMap().entries.map((e) {
+//         return FlSpot(e.key.toDouble(), e.value);
+//       }).toList();
+//     }
+//   } else {
+//     throw Exception('Faild to load Get');
+//   }
+// }
 
 // 메인페이지 디바이스 리스트 HTTP GET
 Future<List<DeviceItem>> LoadDevice(date, token) async {
@@ -457,11 +594,15 @@ Future<List<DeviceItem>> LoadDevice(date, token) async {
 
   if (response.statusCode == 200) {
     List jsonList = jsonDecode(utf8.decode(response.bodyBytes));
+    if (jsonList.isEmpty) {
+      isEmptyDevice = true;
+    } else {
+      isEmptyDevice = false;
+      var getList =
+          jsonList.map((element) => DeviceItem.fromJson(element)).toList();
 
-    var getList =
-        jsonList.map((element) => DeviceItem.fromJson(element)).toList();
-
-    return getList;
+      return getList;
+    }
   } else {
     throw Exception('Faild to load Get');
   }
@@ -472,8 +613,8 @@ class DeviceItem {
   final int id;
   final String name;
   final bool connect;
-  final int avgpm10;
-  final int avgpm25;
+  final double avgpm10;
+  final double avgpm25;
 
   DeviceItem({this.id, this.name, this.connect, this.avgpm10, this.avgpm25});
 
