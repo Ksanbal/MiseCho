@@ -1,5 +1,3 @@
-import 'package:checkpm_app/detail_page.dart';
-import 'package:checkpm_app/index_page.dart';
 import 'package:flutter/material.dart';
 
 import 'login_page.dart';
