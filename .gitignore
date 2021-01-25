@@ -8,3 +8,5 @@ API/CheckPM/migrations/
 
 API/db.sqlite3
 API/identifier.sqlite
+
+APP/checkpm_app/android/app/*.json
