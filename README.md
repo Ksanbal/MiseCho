@@ -15,4 +15,4 @@
 ---
 ## ERD
 <img src='./img/ERD_v0.2.png' height=600>
-## [테이블 정의서](./img/테이블 정의서.xlsx)
+## [테이블 정의서]([./img/테이블 정의서.xlsx](https://github.com/Ksanbal/CheckPM/blob/main/%ED%85%8C%EC%9D%B4%EB%B8%94%20%EC%A0%95%EC%9D%98%EC%84%9C.xlsx))
