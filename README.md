@@ -1,20 +1,11 @@
 # CheckPM
 ## 마이크로콘트롤러를 이용한 미세먼지 측정 및 관리 프로젝트
-<<<<<<< HEAD
 ---
 ## 개요
 - Project Manager : 김현균
 - Version Number : V0.2
 - Written Date : 2021.01.25
 
-=======
->>>>>>> f2ffc22ebc64ffb13853f217568e10d1bef81d61
----
-## 개요
-- Project Manager : 김현균
-- Version Number : V0.2
-- Written Date : 2021.01.25
----
 ## App Work
 <img src='./img/HowToWorkApp.gif' height=400>
 
