@@ -10,7 +10,8 @@ bool isEmptyChart = true;
 
 List<FlSpot> pm10Spot = [];
 List<FlSpot> pm25Spot = [];
-NowSetting nowSetting;
+
+Setting nowSetting;
 
 class DetailPage extends StatefulWidget {
   final Device device;
@@ -21,14 +22,6 @@ class DetailPage extends StatefulWidget {
 }
 
 class _DetailPageState extends State<DetailPage> {
-  @override
-  void initState() {
-    super.initState();
-    LoadChart(widget.device.device_id,
-        '${nowDate.year}-${nowDate.month}-${nowDate.day}', widget.device.token);
-    LoadSetting(widget.device.device_id, widget.device.token);
-  }
-
   // 표시할 그래프
   bool showpm10 = true;
 
@@ -36,6 +29,8 @@ class _DetailPageState extends State<DetailPage> {
   bool isChanged = false;
 
   // Picker's items
+  final deviceNameController = TextEditingController();
+
   // 위험 미세먼지 정도
   List<String> PMNotice = <String>[
     '최고',
@@ -49,11 +44,67 @@ class _DetailPageState extends State<DetailPage> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    LoadChart(widget.device.device_id,
+        '${nowDate.year}-${nowDate.month}-${nowDate.day}', widget.device.token);
+    LoadSetting(widget.device.device_id, widget.device.token);
+    deviceNameController.text = nowSetting.name;
+  }
+
+  @override
+  void dispose() {
+    deviceNameController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xfff0f0f0),
       appBar: AppBar(
-        title: Text('${nowSetting.name}'),
+        title: FlatButton(
+          child: RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: '${nowSetting.name}',
+                  style: TextStyle(fontSize: 20),
+                ),
+                WidgetSpan(
+                  child: Icon(
+                    Icons.edit,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                )
+              ],
+            ),
+          ),
+          onPressed: () {
+            showMaterialResponsiveDialog(
+              context: context,
+              title: '기기명 수정',
+              maxLongSide: 350,
+              child: Center(
+                  child: TextField(
+                controller: deviceNameController,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Device Name',
+                ),
+              )),
+              onConfirmed: () {
+                if (nowSetting.name != deviceNameController.text) {
+                  setState(() {
+                    nowSetting.name = deviceNameController.text;
+                    isChanged = true;
+                  });
+                }
+              },
+            );
+          },
+        ),
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios,
@@ -70,11 +121,57 @@ class _DetailPageState extends State<DetailPage> {
                     content: Text('${nowSetting.name}' + '의 설정을 변경하시겠습니까?'),
                     actions: <Widget>[
                       FlatButton(
-                          onPressed: () {
+                          onPressed: () async {
                             // 변경사항 적용 코드 자리
-                            // (){}
+                            var data = GetSaveData(); // PUT할 데이터 값
+                            final response = await http.put(
+                              '$apiUrl/api/app/device/value/${widget.device.device_id}/',
+                              headers: <String, String>{
+                                'Authorization': "Token ${widget.device.token}"
+                              },
+                              body: data,
+                            );
+
                             Navigator.of(context).pop();
-                            Navigator.of(context).pop();
+                            if (response.statusCode == 200) {
+                              showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: Text('변경사항'),
+                                      content: Text('변경사항이 저장되었습니다.'),
+                                      actions: <Widget>[
+                                        FlatButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Text('OK'),
+                                        )
+                                      ],
+                                    );
+                                  });
+                            } else {
+                              showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: Text('변경사항'),
+                                      content: Text('변경사항이 저장되지 않았습니다.'),
+                                      actions: <Widget>[
+                                        FlatButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Text('OK'),
+                                        )
+                                      ],
+                                    );
+                                  });
+                            }
                           },
                           child: Text('Yes')),
                       FlatButton(
@@ -108,13 +205,13 @@ class _DetailPageState extends State<DetailPage> {
                           onPressed: () async {
                             // HTTP PATCH
                             var response = await http.patch(
-                                '${apiUrl}/api/app/device/value/${widget.device.device_id}/',
+                                '$apiUrl/api/app/device/value/${widget.device.device_id}/',
                                 headers: <String, String>{
                                   'Authorization':
                                       "Token ${widget.device.token}"
                                 });
+                            Navigator.of(context).pop();
                             if (response.statusCode == 200) {
-                              Navigator.of(context).pop();
                               showDialog(
                                   context: context,
                                   barrierDismissible: false,
@@ -134,22 +231,23 @@ class _DetailPageState extends State<DetailPage> {
                                   });
                             } else {
                               showDialog(
-                                  context: context,
-                                  barrierDismissible: false,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: Text('전원'),
-                                      content: Text('전원 종료에 실패했습니다.'),
-                                      actions: <Widget>[
-                                        FlatButton(
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: Text('OK'),
-                                        )
-                                      ],
-                                    );
-                                  });
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text('전원'),
+                                    content: Text('전원 종료에 실패했습니다.'),
+                                    actions: <Widget>[
+                                      FlatButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: Text('OK'),
+                                      )
+                                    ],
+                                  );
+                                },
+                              );
                             }
                           },
                           child: Text('OK')),
@@ -735,13 +833,13 @@ LoadSetting(device_id, token) async {
   var jsonData = json.decode(utf8.decode(response.bodyBytes));
 
   if (response.statusCode == 200) {
-    nowSetting = NowSetting.fromJson(jsonData);
+    nowSetting = Setting.fromJson(jsonData);
   } else {
     throw Exception('Faild to load Get');
   }
 }
 
-class NowSetting {
+class Setting {
   int id;
   String name;
   bool connect;
@@ -750,19 +848,22 @@ class NowSetting {
   int null_freq;
   TimeOfDay works_s;
   TimeOfDay works_e;
+  String comment;
+  int c_id;
 
-  NowSetting({
-    this.id,
-    this.name,
-    this.connect,
-    this.freq,
-    this.pmhigh,
-    this.null_freq,
-    this.works_s,
-    this.works_e,
-  });
+  Setting(
+      {this.id,
+      this.name,
+      this.connect,
+      this.freq,
+      this.pmhigh,
+      this.null_freq,
+      this.works_s,
+      this.works_e,
+      this.comment,
+      this.c_id});
 
-  factory NowSetting.fromJson(Map<String, dynamic> json) {
+  factory Setting.fromJson(Map<String, dynamic> json) {
     // nowSetting에 저장된 String 시간값을 표시가능한 TimeOfDay로 변경
     int s_hour = int.parse(json['work_s'].substring(0, 2));
     int s_min = int.parse(json['work_s'].substring(2, 4));
@@ -772,7 +873,7 @@ class NowSetting {
     TimeOfDay start_time = TimeOfDay(hour: s_hour, minute: s_min);
     TimeOfDay stop_time = TimeOfDay(hour: e_hour, minute: e_min);
 
-    return NowSetting(
+    return Setting(
       id: json['id'],
       name: json['name'],
       connect: json['connect'],
@@ -781,8 +882,39 @@ class NowSetting {
       null_freq: json['null_freq'],
       works_s: start_time,
       works_e: stop_time,
+      comment: json['comment'],
+      c_id: json['c_id'],
     );
   }
 }
 
 // 디바이스 세팅 PUT
+GetSaveData() {
+  // TimeOfDay를 String 형식으로 변경
+  String start_time_hour = nowSetting.works_s.hour.toString();
+  String start_time_min = nowSetting.works_s.minute.toString();
+  String stop_time_hour = nowSetting.works_e.hour.toString();
+  String stop_time_min = nowSetting.works_e.minute.toString();
+  List time = [start_time_hour, start_time_min, stop_time_hour, stop_time_min];
+
+  // 한자리 문자열에 0을 추가
+  for (String i in time) {
+    if (i.length == 1) {
+      time[time.indexOf(i)] = '0' + i;
+    }
+  }
+
+  Map data = {
+    'name': nowSetting.name,
+    'connect': nowSetting.connect.toString(),
+    'freq': nowSetting.freq.toString(),
+    'pmhigh': nowSetting.pmhigh.toString(),
+    'null_freq': nowSetting.null_freq.toString(),
+    'work_s': time[0] + time[1],
+    'work_e': time[2] + time[3],
+    'comment': nowSetting.comment,
+    'c_id': nowSetting.c_id.toString(),
+  };
+
+  return data;
+}
