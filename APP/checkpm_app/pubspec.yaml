@@ -15,13 +15,14 @@ dependencies:
 
   cupertino_icons: ^1.0.0
   fl_chart: ^0.12.2
-  flutter_material_pickers: ^1.9.0
+  flutter_material_pickers: any
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   http: any
-  shared_preferences: 
+  firebase_messaging: 5.1.5
+
 
 flutter:
   uses-material-design: true
