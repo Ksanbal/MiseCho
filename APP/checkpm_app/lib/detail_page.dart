@@ -105,8 +105,52 @@ class _DetailPageState extends State<DetailPage> {
                     content: Text('${nowSetting.name}' + '의 전원을 종료하시겠습니까?'),
                     actions: <Widget>[
                       FlatButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
+                          onPressed: () async {
+                            // HTTP PATCH
+                            var response = await http.patch(
+                                '${apiUrl}/api/app/device/value/${widget.device.device_id}/',
+                                headers: <String, String>{
+                                  'Authorization':
+                                      "Token ${widget.device.token}"
+                                });
+                            if (response.statusCode == 200) {
+                              Navigator.of(context).pop();
+                              showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: Text('전원'),
+                                      content: Text('곧 전원이 종료됩니다.'),
+                                      actions: <Widget>[
+                                        FlatButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Text('OK'),
+                                        )
+                                      ],
+                                    );
+                                  });
+                            } else {
+                              showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: Text('전원'),
+                                      content: Text('전원 종료에 실패했습니다.'),
+                                      actions: <Widget>[
+                                        FlatButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Text('OK'),
+                                        )
+                                      ],
+                                    );
+                                  });
+                            }
                           },
                           child: Text('OK')),
                       FlatButton(
@@ -579,26 +623,7 @@ class _DetailPageState extends State<DetailPage> {
 // 빈 차트 데이터
   List<LineChartBarData> EmptyLinesBarData() {
     final LineChartBarData lineChartBarData1 = LineChartBarData(
-      spots: [
-        FlSpot(1, 114),
-        FlSpot(2, 38),
-        FlSpot(3, 21),
-        FlSpot(4, 131),
-        FlSpot(5, 64),
-        FlSpot(6, 107),
-        FlSpot(7, 69),
-        FlSpot(8, 36),
-        FlSpot(10, 109),
-        FlSpot(12, 68),
-        FlSpot(13, 67),
-        FlSpot(15, 115),
-        FlSpot(16, 74),
-        FlSpot(17, 41),
-        FlSpot(19, 16),
-        FlSpot(20, 124),
-        FlSpot(22, 54),
-        FlSpot(24, 107),
-      ],
+      spots: [FlSpot(1, 114)],
       show: false,
       isCurved: true,
       colors: [
@@ -759,3 +784,5 @@ class NowSetting {
     );
   }
 }
+
+// 디바이스 세팅 PUT
