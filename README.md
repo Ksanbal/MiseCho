@@ -12,7 +12,7 @@
 ---
 ## [Rest API 규격서](https://github.com/Ksanbal/CheckPM/blob/main/Restful%20API%20%EC%97%B0%EB%8F%99%20%EA%B7%9C%EA%B2%A9%EC%84%9C.md)
 
---
+---
 ## ERD
-<img src='./img/ERD_v0.2.png' height=400>
+<img src='./img/ERD_v0.2.png' height=600>
 ## [테이블 정의서](./img/테이블 정의서.xlsx)
