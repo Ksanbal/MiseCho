@@ -2,25 +2,31 @@
 ## 개요
 - Project Name : CheckPM
 - Project Manager : 김현균
-- Version Number : V0.1
-- Written Date : 2021.01.19
-
+- Version Number : V0.2
+- Written Date : 2021.01.25
+---
 ## 목차
 1. [APP](#app)
-   1. [회원가입(POST)](#1-회원가입)
-   2. [로그인(POST)](#2-로그인)
-   3. [메인페이지(GET)](#3-메인페이지)
-   4. [디바이스 디테일 페이지(GET)](#4-디바이스-디테일-페이지)
-   5. [디바이스 설정 변경사항 저장(PUT)](#5-디바이스-설정-변경사항-저장)
-   6. [디바이스 전원 종료(PATCH)](#6-디바이스-전원-종료)
-   7. [알림 리스트 페이지(GET)](#7-알림-리스트-페이지)
+   1. [회원관리](#1-회원관리)
+      1. [회원가입(POST)](#1-1-회원가입)
+      2. [로그인(POST)](#1-2-로그인)
+   2. [메인페이지](#2-메인페이지)
+      1. [메인페이지 차트 데이터(GET)](#2-1-메인페이지-차트-데이터)
+      2. [메인페이지 디바이스 리스트(GET)](#2-2-메인페이지-디바이스-리스트)
+   3. [디바이스 디테일 페이지](#3-디바이스-디테일-페이지)
+      1. [디바이스 차트 데이터(GET)](#3-1-디바이스-차트-데이터)
+      2. [디바이스 디테일 페이지(GET)](#3-2-디바이스-디테일-페이지)
+      3. [디바이스 설정 변경사항 저장(PUT)](#3-3-디바이스-설정-변경사항-저장)
+      4. [디바이스 전원 종료(PATCH)](#3-4-디바이스-전원-종료)
+   4. [알림 리스트 페이지(GET)](#4-알림-리스트-페이지)
 2. [Device](#device)
    1. [데이터 전송(POST)](#1-데이터-전송)
-
+---
 <br>
 
 ## APP
-### 1. 회원가입
+## 1. 회원관리
+### 1-1. 회원가입
 #### - Request - POST 방식으로 호출
 - HTTP URL = 'http://127.0.0.1:8000/api/app/auth/signup/'
 - Parameter 형식(POST 형식)
@@ -61,7 +67,7 @@
 ```
 
 ---
-### 2. 로그인
+### 1-2. 로그인
 #### - Request - POST 방식으로 호출
 - HTTP URL = 'http://127.0.0.1:8000/api/app/auth/signin/'
 - Parameter 형식(POST 형식)
@@ -98,9 +104,10 @@
 ```
 
 ---
-### 3. 메인페이지
+## 2. 메인페이지
+### 2-1. 메인페이지 차트 데이터
 #### - Request - GET 방식으로 호출
-- HTTP URL = 'http://127.0.0.1:8000/api/app/main/'
+- HTTP URL = 'http://127.0.0.1:8000/api/app/main/chart/(요청날짜)/'
 - Parameter 형식(GET 형식)
 
 |파라미터명|타입|필수여부|설명|
@@ -120,55 +127,31 @@
   
 |엘리먼트명|depth|설명|값 구분|
 |-|-|-|-|
-|avgpm10|3|미세먼지 평균값|200 : OK<br>400 : Bad Request
-|avgpm25|3|초미세먼지 평균값|
-|id|3|디바이스 ID|
-|name|3|디바이스명|
-|connect|3|디바이스 연결상태|
-|avgpm10|3|디바이스 미세먼지 평균값|
-|avgpm25|3|디바이스 초미세먼지 평균값|
+|avgpm10|2|미세먼지 평균값|200 : OK<br>400 : Bad Request
+|avgpm25|2|초미세먼지 평균값|
 
 - 샘플 JSON 예제
 ```json
 // 200 ok
 [
-  [
-    {
-      "avgpm10": 10,
-      "avgpm25": 10
-    },
-    {
-      "avgpm10": 20,
-      "avgpm25": 20
-    }
-  ],
-  [
-    {
-      "id": 1,
-      "name": "측정기1",
-      "connect": true,
-      "avgpm10": 40,
-      "avgpm25": 40
-    },
-    {
-      "id": 2,
-      "name": "측정기2",
-      "connect": true,
-      "avgpm10": 100,
-      "avgpm25": 100
-    }
-  ]
+  {
+    "avgpm10": 10,
+    "avgpm25": 10
+  },
+  {
+    "avgpm10": 20,
+    "avgpm25": 20
+  }
 ]
 // 400 bad request
 {
 
 }
 ```
-
 ---
-### 4. 디바이스 디테일 페이지
+### 2-2. 메인페이지 디바이스 리스트
 #### - Request - GET 방식으로 호출
-- HTTP URL = 'http://127.0.0.1:8000/api/app/device/(디바이스 ID)/'
+- HTTP URL = 'http://127.0.0.1:8000/api/app/main/device/(요청날짜)/'
 - Parameter 형식(GET 형식)
 
 |파라미터명|타입|필수여부|설명|
@@ -188,49 +171,76 @@
   
 |엘리먼트명|depth|설명|값 구분|
 |-|-|-|-|
-|avgpm10|3|미세먼지 평균값|200 : OK<br>400 : Bad Request
-|avgpm25|3|초미세먼지 평균값|
-|id|3|디바이스 아이디|
-|name|3|디바이스명|
-|connect|3|디바이스 연결상태|
-|freq|3|디바이스 측정 주기|
-|pmhigh|3|디바이스 알림 수준<br>('최고', '좋음', '양호', '보통', '나쁨', '상당히 나쁨', '매우 나쁨', '최악')|
-|null_freq|3|디바이스 데이터 누락 횟수당 알림시간|
-|work_s|3|디바이스 측정 시작시간|
-|work_e|3|디바이스 측정 종료시간|
-|comment|3|디바이스 설명|
-|avgpm10|3|디바이스 미세먼지 평균값|
-|avgpm25|3|디바이스 초미세먼지 평균값|
-|c_id|3|디바이스 회사 번호|
+|id|2|디바이스 ID|
+|name|2|디바이스명|
+|connect|2|디바이스 연결상태|
+|avgpm10|2|디바이스 미세먼지 평균값|
+|avgpm25|2|디바이스 초미세먼지 평균값|
+
+- 샘플 JSON 예제
+```json
+// 200 ok
+[
+  {
+    "id": 1,
+    "name": "측정기1",
+    "connect": true,
+    "avgpm10": 40,
+    "avgpm25": 40
+  },
+  {
+    "id": 2,
+    "name": "측정기2",
+    "connect": true,
+    "avgpm10": 100,
+    "avgpm25": 100
+  }
+]
+// 400 bad request
+{
+
+}
+```
+
+---
+## 3. 디바이스 디테일 페이지
+### 3-1. 디바이스 차트 데이터
+#### - Request - GET 방식으로 호출
+- HTTP URL = 'http://127.0.0.1:8000/api/app/device/chart/(디바이스 ID)/(요청날짜)/'
+- Parameter 형식(GET 형식)
+
+|파라미터명|타입|필수여부|설명|
+|-|-|-|-|
+|date|str|필수|선택된 날짜("2021-01-14")|
+
+- Parameter 형식(Header 형식)
+
+|파라미터명|값|설명|
+|-|-|-|
+|Content-Type|application/json|JSON 통신|
+|Authorization|Token c95d8d14b465211491c140343d48951789d06abb|Token 값|
+<br>
+
+#### - Response Format - JSON 형태로 반환
+- 반환값 형식
+  
+|엘리먼트명|depth|설명|값 구분|
+|-|-|-|-|
+|avgpm10|2|미세먼지 평균값|200 : OK<br>400 : Bad Request
+|avgpm25|2|초미세먼지 평균값|
 
 
 - 샘플 JSON 예제
 ```json
 // 200 ok
 [
-    [
-        {
-        "avgpm10": 10,
-        "avgpm25": 10
-        },
-        {
-        "avgpm10": 20,
-        "avgpm25": 20
-        }
-    ],
     {
-        "id": 1,
-        "name": "측정기1",
-        "connect": true,
-        "freq": 6,
-        "pmhigh": 6,
-        "null_freq": 6,
-        "work_s": "1000",
-        "work_e": "2000",
-        "comment": "PUT 테스트",
-        "avgpm10": null,
-        "avgpm25": null,
-        "c_id": 1
+    "avgpm10": 10,
+    "avgpm25": 10
+    },
+    {
+    "avgpm10": 20,
+    "avgpm25": 20
     }
 ]
 // 400 bad request
@@ -240,9 +250,70 @@
 ```
 
 ---
-### 5. 디바이스 설정 변경사항 저장 
+### 3-2. 디바이스 디테일 페이지
+#### - Request - GET 방식으로 호출
+- HTTP URL = 'http://127.0.0.1:8000/api/app/device/value/(디바이스 ID)/'
+- Parameter 형식(GET 형식)
+
+|파라미터명|타입|필수여부|설명|
+|-|-|-|-|
+|-|-|-|-|
+
+
+- Parameter 형식(Header 형식)
+
+|파라미터명|값|설명|
+|-|-|-|
+|Content-Type|application/json|JSON 통신|
+|Authorization|Token c95d8d14b465211491c140343d48951789d06abb|Token 값|
+<br>
+
+#### - Response Format - JSON 형태로 반환
+- 반환값 형식
+  
+|엘리먼트명|depth|설명|값 구분|
+|-|-|-|-|
+|id|1|디바이스 아이디|
+|name|1|디바이스명|
+|connect|1|디바이스 연결상태|
+|freq|1|디바이스 측정 주기|
+|pmhigh|1|디바이스 알림 수준<br>('최고', '좋음', '양호', '보통', '나쁨', '상당히 나쁨', '매우 나쁨', '최악')|
+|null_freq|1|디바이스 데이터 누락 횟수당 알림시간|
+|work_s|1|디바이스 측정 시작시간|
+|work_e|1|디바이스 측정 종료시간|
+|comment|1|디바이스 설명|
+|avgpm10|1|디바이스 미세먼지 평균값|
+|avgpm25|1|디바이스 초미세먼지 평균값|
+|c_id|1|디바이스 회사 번호|
+
+
+- 샘플 JSON 예제
+```json
+// 200 ok
+{
+    "id": 1,
+    "name": "측정기1",
+    "connect": true,
+    "freq": 6,
+    "pmhigh": 6,
+    "null_freq": 6,
+    "work_s": "1000",
+    "work_e": "2000",
+    "comment": "PUT 테스트",
+    "avgpm10": null,
+    "avgpm25": null,
+    "c_id": 1
+}
+// 400 bad request
+{
+
+}
+```
+
+---
+### 3-3. 디바이스 설정 변경사항 저장 
 #### - Request - PUT 방식으로 호출
-- HTTP URL = 'http://127.0.0.1:8000/api/app/device/(디바이스 ID)/'
+- HTTP URL = 'http://127.0.0.1:8000/api/app/device/value/(디바이스 ID)/'
 - Parameter 형식(GET 형식)
 
 |파라미터명|타입|필수여부|설명|
@@ -309,9 +380,9 @@
 ```
 
 ---
-### 6. 디바이스 전원 종료
+### 3-4. 디바이스 전원 종료
 #### - Request - PATCH 방식으로 호출
-- HTTP URL = 'http://127.0.0.1:8000/api/app/device/(디바이스 ID)/'
+- HTTP URL = 'http://127.0.0.1:8000/api/app/device/value/(디바이스 ID)/'
 - Parameter 형식(GET 형식)
 
 |파라미터명|타입|필수여부|설명|
@@ -347,7 +418,7 @@
 ```
 
 ---
-### 7. 알림 리스트 페이지
+## 4. 알림 리스트 페이지
 #### - Request - GET 방식으로 호출
 - HTTP URL = 'http://127.0.0.1:8000/api/app/notice/'
 - Parameter 형식(GET 형식)
