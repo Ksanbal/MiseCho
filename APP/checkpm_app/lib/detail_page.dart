@@ -10,6 +10,7 @@ bool isEmptyChart = true;
 
 List<FlSpot> pm10Spot = [];
 List<FlSpot> pm25Spot = [];
+NowSetting nowSetting;
 
 class DetailPage extends StatefulWidget {
   final Device device;
@@ -20,27 +21,22 @@ class DetailPage extends StatefulWidget {
 }
 
 class _DetailPageState extends State<DetailPage> {
-  // 표시할 그래프
-  bool showpm10 = true;
-  // Device Name
-  var DeviceName = '측정기 1';
-
   @override
   void initState() {
     super.initState();
-    print(widget.device.device_id);
     LoadChart(widget.device.device_id,
         '${nowDate.year}-${nowDate.month}-${nowDate.day}', widget.device.token);
+    LoadSetting(widget.device.device_id, widget.device.token);
   }
 
-  // Picker's items
+  // 표시할 그래프
+  bool showpm10 = true;
+
   // 설정 변경 확인
   bool isChanged = false;
-  // 오늘 날짜
-  // 미세먼지 측정 주기
-  var PMFre = 5;
+
+  // Picker's items
   // 위험 미세먼지 정도
-  var selectedPMNotice = '상당히 나쁨';
   List<String> PMNotice = <String>[
     '최고',
     '좋음',
@@ -51,18 +47,13 @@ class _DetailPageState extends State<DetailPage> {
     '매우 나쁨',
     '최악'
   ];
-  // 알림 데이터 누락 횟수
-  var DataNotice = 5;
-  // 기기 작동시간
-  var startTime = TimeOfDay(hour: 9, minute: 0);
-  var stopTime = TimeOfDay(hour: 18, minute: 0);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xfff0f0f0),
       appBar: AppBar(
-        title: Text('$DeviceName'),
+        title: Text('${nowSetting.name}'),
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios,
@@ -76,7 +67,7 @@ class _DetailPageState extends State<DetailPage> {
                 builder: (BuildContext context) {
                   return AlertDialog(
                     title: Text('변경사항'),
-                    content: Text('$DeviceName' + '의 설정을 변경하시겠습니까?'),
+                    content: Text('${nowSetting.name}' + '의 설정을 변경하시겠습니까?'),
                     actions: <Widget>[
                       FlatButton(
                           onPressed: () {
@@ -111,7 +102,7 @@ class _DetailPageState extends State<DetailPage> {
                 builder: (BuildContext context) {
                   return AlertDialog(
                     title: Text('전원'),
-                    content: Text('$DeviceName' + '의 전원을 종료하시겠습니까?'),
+                    content: Text('${nowSetting.name}' + '의 전원을 종료하시겠습니까?'),
                     actions: <Widget>[
                       FlatButton(
                           onPressed: () {
@@ -143,14 +134,15 @@ class _DetailPageState extends State<DetailPage> {
                     title: Text(
                       '${nowDate.year}-${nowDate.month}-${nowDate.day}',
                       style: TextStyle(
-                          fontSize: 25,
-                          letterSpacing: -1,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.green),
+                        fontSize: 25,
+                        letterSpacing: -1,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
+                      ),
                     ),
                     trailing: Icon(
                       Icons.circle,
-                      color: Colors.green,
+                      color: nowSetting.connect ? Colors.green : Colors.grey,
                       size: 40,
                     ),
                     onTap: () {
@@ -221,7 +213,6 @@ class _DetailPageState extends State<DetailPage> {
                         onPressed: () {
                           setState(() {
                             showpm10 = !showpm10;
-                            print(pm10Spot);
                           });
                         },
                       ),
@@ -240,7 +231,7 @@ class _DetailPageState extends State<DetailPage> {
                       style: TextStyle(fontSize: 25, letterSpacing: -1),
                     ),
                     trailing: Text(
-                      '$PMFre' + '분',
+                      '${nowSetting.freq}' + '분',
                       style: TextStyle(
                         fontSize: 25,
                         fontWeight: FontWeight.bold,
@@ -253,9 +244,9 @@ class _DetailPageState extends State<DetailPage> {
                         title: '미세먼지 측정주기',
                         minNumber: 1,
                         maxNumber: 60,
-                        selectedNumber: PMFre,
+                        selectedNumber: nowSetting.freq,
                         onChanged: (value) => setState(() {
-                          PMFre = value;
+                          nowSetting.freq = value;
                           isChanged = true;
                         }),
                       );
@@ -274,7 +265,7 @@ class _DetailPageState extends State<DetailPage> {
                       style: TextStyle(fontSize: 25, letterSpacing: -1),
                     ),
                     trailing: Text(
-                      '$selectedPMNotice',
+                      '${PMNotice[nowSetting.pmhigh]}',
                       style: TextStyle(
                         fontSize: 25,
                         fontWeight: FontWeight.bold,
@@ -286,9 +277,9 @@ class _DetailPageState extends State<DetailPage> {
                         context: context,
                         title: '위험 미세먼지 정도',
                         items: PMNotice,
-                        selectedItem: selectedPMNotice,
+                        selectedItem: PMNotice[nowSetting.pmhigh],
                         onChanged: (value) => setState(() {
-                          selectedPMNotice = value;
+                          nowSetting.pmhigh = PMNotice.indexOf(value);
                           isChanged = true;
                         }),
                       );
@@ -307,7 +298,7 @@ class _DetailPageState extends State<DetailPage> {
                       style: TextStyle(fontSize: 25, letterSpacing: -1),
                     ),
                     trailing: Text(
-                      '$DataNotice' + '회',
+                      '${nowSetting.null_freq}' + '회',
                       style: TextStyle(
                         fontSize: 25,
                         fontWeight: FontWeight.bold,
@@ -320,9 +311,9 @@ class _DetailPageState extends State<DetailPage> {
                         title: '알림 데이터 누락 횟수',
                         minNumber: 1,
                         maxNumber: 100,
-                        selectedNumber: DataNotice,
+                        selectedNumber: nowSetting.null_freq,
                         onChanged: (value) => setState(() {
-                          DataNotice = value;
+                          nowSetting.null_freq = value;
                           isChanged = true;
                         }),
                       );
@@ -341,7 +332,7 @@ class _DetailPageState extends State<DetailPage> {
                       style: TextStyle(fontSize: 25, letterSpacing: -1),
                     ),
                     trailing: Text(
-                      '${startTime.format(context)}~${stopTime.format(context)}',
+                      '${nowSetting.works_s.format(context)}~${nowSetting.works_e.format(context)}',
                       style: TextStyle(
                           fontSize: 25,
                           fontWeight: FontWeight.bold,
@@ -353,16 +344,19 @@ class _DetailPageState extends State<DetailPage> {
                       showMaterialTimePicker(
                         context: context,
                         title: '시작시간',
-                        selectedTime: startTime,
-                        onChanged: (value) => setState(() => startTime = value),
+                        selectedTime: nowSetting.works_s,
+                        onChanged: (value) => setState(() {
+                          nowSetting.works_s = value;
+                          isChanged = true;
+                        }),
                         onConfirmed: () {
                           // StopTime
                           showMaterialTimePicker(
                             context: context,
                             title: '종료시간',
-                            selectedTime: stopTime,
+                            selectedTime: nowSetting.works_e,
                             onChanged: (value) => setState(() {
-                              stopTime = value;
+                              nowSetting.works_e = value;
                               isChanged = true;
                             }),
                           );
@@ -705,5 +699,63 @@ class _DetailPageState extends State<DetailPage> {
     } else {
       throw Exception('Faild to load Get');
     }
+  }
+}
+
+// 디바이스 세팅 GET
+LoadSetting(device_id, token) async {
+  var response = await http.get('$apiUrl/api/app/device/value/$device_id/',
+      headers: <String, String>{'Authorization': "Token $token"});
+
+  var jsonData = json.decode(utf8.decode(response.bodyBytes));
+
+  if (response.statusCode == 200) {
+    nowSetting = NowSetting.fromJson(jsonData);
+  } else {
+    throw Exception('Faild to load Get');
+  }
+}
+
+class NowSetting {
+  int id;
+  String name;
+  bool connect;
+  int freq;
+  int pmhigh;
+  int null_freq;
+  TimeOfDay works_s;
+  TimeOfDay works_e;
+
+  NowSetting({
+    this.id,
+    this.name,
+    this.connect,
+    this.freq,
+    this.pmhigh,
+    this.null_freq,
+    this.works_s,
+    this.works_e,
+  });
+
+  factory NowSetting.fromJson(Map<String, dynamic> json) {
+    // nowSetting에 저장된 String 시간값을 표시가능한 TimeOfDay로 변경
+    int s_hour = int.parse(json['work_s'].substring(0, 2));
+    int s_min = int.parse(json['work_s'].substring(2, 4));
+    int e_hour = int.parse(json['work_e'].substring(0, 2));
+    int e_min = int.parse(json['work_e'].substring(2, 4));
+
+    TimeOfDay start_time = TimeOfDay(hour: s_hour, minute: s_min);
+    TimeOfDay stop_time = TimeOfDay(hour: e_hour, minute: e_min);
+
+    return NowSetting(
+      id: json['id'],
+      name: json['name'],
+      connect: json['connect'],
+      freq: json['freq'],
+      pmhigh: json['pmhigh'],
+      null_freq: json['null_freq'],
+      works_s: start_time,
+      works_e: stop_time,
+    );
   }
 }
