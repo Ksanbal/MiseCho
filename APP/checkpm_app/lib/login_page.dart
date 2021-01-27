@@ -99,8 +99,7 @@ class _LoginPageState extends State<LoginPage> {
       'password': password,
     };
     var jsonData = null;
-    var response = await http.post('http://127.0.0.1:8000/api/app/auth/signin/',
-        body: data);
+    var response = await http.post('$apiUrl/api/app/auth/signin/', body: data);
     if (response.statusCode == 200) {
       jsonData = json.decode(response.body);
       setState(() {

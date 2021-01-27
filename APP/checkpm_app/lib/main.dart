@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'dart:io';
+// import 'package:firebase_messaging/firebase_messaging.dart';
+// import 'dart:io';
 
 import 'login_page.dart';
 
@@ -61,6 +61,6 @@ class Device {
   Device(this.token, this.device_id);
 }
 
-final String apiUrl = 'http://127.0.0.1:8000';
+final String apiUrl = 'http://www.checkpm.tk';
 var nowDate = DateTime.now();
 // final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
