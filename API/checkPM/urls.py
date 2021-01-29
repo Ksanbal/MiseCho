@@ -2,6 +2,7 @@ from django.urls import path
 from . import views as vi
 
 urlpatterns = [
+    # APP
     # 회원관리
     # 회원가입
     path('app/auth/signup/', vi.signup),
@@ -19,7 +20,9 @@ urlpatterns = [
     path('app/device/chart/<int:device_id>/<str:date>/', vi.device_setting_chart),
     path('app/device/value/<int:device_id>/', vi.device_setting_value),
 
+    # Device
     # Device Data Post
-    path('device/datapost/', vi.data_post),
+    path('device/data/<int:device_id>/', vi.check_freq),
+    path('device/data/', vi.datapost),
 ]
 

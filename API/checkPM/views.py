@@ -186,9 +186,14 @@ def device_setting_value(request, device_id):
     return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
+@api_view(['GET'])
+def check_freq(request, device_id):
+    return Response(mo.Devices.objects.get(id=device_id).freq, status=status.HTTP_200_OK)
+
+
 # Device Data Post
 @api_view(['POST'])
-def data_post(request):
+def datapost(request):
     # 미세먼지 정도 확인 및 알림 생성 함수
     def check_grade(pm10, pm25, d_id):
         # 미세먼지 단계
@@ -238,3 +243,5 @@ def data_post(request):
             serializer.save()
             return Response(serializer.errors, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
