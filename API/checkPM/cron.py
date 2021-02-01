@@ -32,3 +32,5 @@ def cron_job():
         ).aggregate(Avg('avgpm25'))['avgpm25__avg']
 
         mo.TotalAvgDatas.objects.create(avgpm10=total_avg_pm10, avgpm25=total_avg_pm2p5, c_id=i)
+
+    print(f"{datetime.now()} Avg Data created")
