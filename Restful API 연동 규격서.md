@@ -1,9 +1,9 @@
-# CheckPM - Rest API 연동 규격서<br>[http://127.0.0.1:8000/]
+# CheckPM - Rest API 연동 규격서<br>[http://www.checkpm.tk]
 ## 개요
 - Project Name : CheckPM
 - Project Manager : 김현균
-- Version Number : V0.2
-- Written Date : 2021.01.25
+- Version Number : V0.3
+- Written Date : 2021.02.01
 ---
 ## 목차
 1. [APP](#app)
@@ -20,7 +20,8 @@
       4. [디바이스 전원 종료(PATCH)](#3-4-디바이스-전원-종료)
    4. [알림 리스트 페이지(GET)](#4-알림-리스트-페이지)
 2. [Device](#device)
-   1. [데이터 전송(POST)](#1-데이터-전송)
+   1. [설정값 확인(GET)](#1-설정값-확인)
+   2. [데이터 전송(POST)](#2-데이터-전송)
 ---
 <br>
 
@@ -28,7 +29,7 @@
 ## 1. 회원관리
 ### 1-1. 회원가입
 #### - Request - POST 방식으로 호출
-- HTTP URL = 'http://127.0.0.1:8000/api/app/auth/signup/'
+- HTTP URL = **'/api/app/auth/signup/'**
 - Parameter 형식(POST 형식)
 
 |파라미터명|타입|필수여부|설명|
@@ -69,7 +70,7 @@
 ---
 ### 1-2. 로그인
 #### - Request - POST 방식으로 호출
-- HTTP URL = 'http://127.0.0.1:8000/api/app/auth/signin/'
+- HTTP URL = **'/api/app/auth/signin/'**
 - Parameter 형식(POST 형식)
 
 |파라미터명|타입|필수여부|설명|
@@ -107,7 +108,7 @@
 ## 2. 메인페이지
 ### 2-1. 메인페이지 차트 데이터
 #### - Request - GET 방식으로 호출
-- HTTP URL = 'http://127.0.0.1:8000/api/app/main/chart/(요청날짜)/'
+- HTTP URL = **'/api/app/main/chart/(요청날짜)/'**
 - Parameter 형식(GET 형식)
 
 |파라미터명|타입|필수여부|설명|
@@ -151,7 +152,7 @@
 ---
 ### 2-2. 메인페이지 디바이스 리스트
 #### - Request - GET 방식으로 호출
-- HTTP URL = 'http://127.0.0.1:8000/api/app/main/device/(요청날짜)/'
+- HTTP URL = **'/api/app/main/device/(요청날짜)/'**
 - Parameter 형식(GET 형식)
 
 |파라미터명|타입|필수여부|설명|
@@ -206,7 +207,7 @@
 ## 3. 디바이스 디테일 페이지
 ### 3-1. 디바이스 차트 데이터
 #### - Request - GET 방식으로 호출
-- HTTP URL = 'http://127.0.0.1:8000/api/app/device/chart/(디바이스 ID)/(요청날짜)/'
+- HTTP URL = **'/api/app/device/chart/(디바이스 ID)/(요청날짜)/'**
 - Parameter 형식(GET 형식)
 
 |파라미터명|타입|필수여부|설명|
@@ -252,7 +253,7 @@
 ---
 ### 3-2. 디바이스 디테일 페이지
 #### - Request - GET 방식으로 호출
-- HTTP URL = 'http://127.0.0.1:8000/api/app/device/value/(디바이스 ID)/'
+- HTTP URL = **'/api/app/device/value/(디바이스 ID)/'**
 - Parameter 형식(GET 형식)
 
 |파라미터명|타입|필수여부|설명|
@@ -313,7 +314,7 @@
 ---
 ### 3-3. 디바이스 설정 변경사항 저장 
 #### - Request - PUT 방식으로 호출
-- HTTP URL = 'http://127.0.0.1:8000/api/app/device/value/(디바이스 ID)/'
+- HTTP URL = **'/api/app/device/value/(디바이스 ID)/'**
 - Parameter 형식(GET 형식)
 
 |파라미터명|타입|필수여부|설명|
@@ -382,7 +383,7 @@
 ---
 ### 3-4. 디바이스 전원 종료
 #### - Request - PATCH 방식으로 호출
-- HTTP URL = 'http://127.0.0.1:8000/api/app/device/value/(디바이스 ID)/'
+- HTTP URL = **'/api/app/device/value/(디바이스 ID)/'**
 - Parameter 형식(GET 형식)
 
 |파라미터명|타입|필수여부|설명|
@@ -420,7 +421,7 @@
 ---
 ## 4. 알림 리스트 페이지
 #### - Request - GET 방식으로 호출
-- HTTP URL = 'http://127.0.0.1:8000/api/app/notice/'
+- HTTP URL = **'/api/app/notice/'**
 - Parameter 형식(GET 형식)
 
 |파라미터명|타입|필수여부|설명|
@@ -473,9 +474,40 @@
 ```
 ---
 ## Device
-### 1. 데이터 전송
+### 1. 설정값 확인
+#### - Request - GET 방식으로 호출
+- HTTP URL = **'/api/device/data/<디바이스 id>/'**
+- Parameter 형식(GET 형식)
+
+|파라미터명|타입|필수여부|설명|
+|-|-|-|-|
+|-|-|-|-|
+
+- Parameter 형식(Header 형식)
+
+|파라미터명|값|설명|
+|-|-|-|
+|-|-|-|-|
+<br>
+
+#### - Response Format - JSON 형태로 반환
+- 반환값 형식
+  
+|엘리먼트명|depth|설명|값 구분|
+|-|-|-|-|
+|-|-|-|-|
+
+
+- 샘플 JSON 예제
+```json
+// 200 ok
+6
+// 400 bad request
+```
+
+### 2. 데이터 전송
 #### - Request - POST 방식으로 호출
-- HTTP URL = 'http://127.0.0.1:8000/api/device/datapost/'
+- HTTP URL = **'/api/device/'**
 - Parameter 형식(POST 형식)
 
 |파라미터명|타입|필수여부|설명|
