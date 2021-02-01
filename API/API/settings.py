@@ -55,7 +55,7 @@ REST_FRAMEWORK = {
 }
 
 CRONJOBS = [
-    ('*/1 * * * *', 'checkPM.cron.cron_job', '>> crontab.log')
+    ('59 */1 * * *', 'checkPM.cron.cron_job', '>> crontab.log')
 ]
 
 MIDDLEWARE = [
