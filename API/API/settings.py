@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
 
+    'django_crontab',
+
     # CheckPM App
     'checkPM'
 ]
@@ -51,6 +53,10 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework.authentication.TokenAuthentication",),
     'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
 }
+
+CRONJOBS = [
+    ('*/1 * * * *', 'checkPM.cron.cron_job', '>> crontab.log')
+]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
