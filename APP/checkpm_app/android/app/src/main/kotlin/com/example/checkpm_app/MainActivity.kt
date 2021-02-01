@@ -1,4 +1,4 @@
-package com.example.checkpm_app
+package com.sanbal.checkpm_app
 
 import io.flutter.embedding.android.FlutterActivity
 
