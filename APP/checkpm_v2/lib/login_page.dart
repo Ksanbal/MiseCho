@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 import 'dart:convert'; // JSON Parsing 패키지
 import 'package:http/http.dart' as http; // http 통신 패키지
 
@@ -178,7 +179,10 @@ class _Login2State extends State<Login2> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => SignupPage()),
+                PageTransition(
+                  type: PageTransitionType.rightToLeft,
+                  child: SignupPage(),
+                ),
               );
             },
           ),

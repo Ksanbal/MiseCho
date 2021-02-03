@@ -15,7 +15,8 @@ dependencies:
   page_transition: any
   http: any
   fl_chart: any
-  flutter_material_pickers: 1.7.4
+  scrolling_page_indicator: any
+  # flutter_material_pickers: 1.7.4
 
 dev_dependencies:
   flutter_test:
