@@ -17,8 +17,8 @@ class SignUp_Serializer(serializers.Serializer):
             username=validated_data["username"],
             password=validated_data["password"],
             first_name=validated_data["first_name"],
-            last_name=validated_data["last_name"],
-            email=validated_data["email"]
+            # last_name=validated_data["last_name"],
+            # email=validated_data["email"]
         )
         profile = mo.Profile(
             user=user,

@@ -19,8 +19,8 @@ def signup(request):
             body = {"message": "비밀번호 길이가 너무 짧습니다."}
             return Response(body, status=status.HTTP_400_BAD_REQUEST)
         try:
-            if mo.User.objects.get(email=request.data['email']):
-                return Response('이미 등록된 이메일입니다.', status=status.HTTP_400_BAD_REQUEST)
+            # if mo.User.objects.get(email=request.data['email']):
+            #     return Response('이미 등록된 이메일입니다.', status=status.HTTP_400_BAD_REQUEST)
             if mo.User.objects.get(username=request.data['username']):
                 return Response('이미 등록된 아이디입니다.', status=status.HTTP_400_BAD_REQUEST)
         except Exception:
