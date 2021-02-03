@@ -8,8 +8,6 @@ class SignUp_Serializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
     first_name = serializers.CharField()
-    last_name = serializers.CharField()
-    email = serializers.EmailField()
     c_id = serializers.IntegerField()
 
     def create(self, validated_data):
