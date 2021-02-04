@@ -16,7 +16,9 @@ dependencies:
   http: any
   fl_chart: any
   scrolling_page_indicator: any
-  # flutter_material_pickers: 1.7.4
+  circle_chart: ^0.0.3
+  heatmap_calendar: ^1.2.8
+  flutter_material_pickers: 1.7.4
 
 dev_dependencies:
   flutter_test:
