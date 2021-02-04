@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:scrolling_page_indicator/scrolling_page_indicator.dart';
+import 'package:circle_chart/circle_chart.dart';
 import 'package:fl_chart/fl_chart.dart';
 // import 'package:flutter_material_pickers/flutter_material_pickers.dart';
 import 'dart:convert';
@@ -8,6 +9,10 @@ import 'package:http/http.dart' as http;
 import 'main.dart';
 // import 'notification_page.dart';
 // import 'detail_page.dart';
+
+import './index_spaces/space_circleInfo.dart';
+import './index_spaces/space_heatmap.dart';
+import './index_spaces/space_chart.dart';
 
 bool isEmptyChart = true;
 bool isEmptyDevice = false;
@@ -86,94 +91,132 @@ class _IndexPageState extends State<IndexPage> {
   space_Chart() {
     List<Widget> items = [
       Container(
-        color: Colors.amber[600],
-        child: const Center(child: Text('Entry A')),
+        color: Colors.lightBlue[400],
+        child: space_circle(),
       ),
       Container(
-        color: Colors.amber[500],
-        child: const Center(child: Text('Entry B')),
+        color: Colors.lightBlue[400],
+        child: space_heatmap(),
       ),
       Container(
-        color: Colors.amber[100],
-        child: const Center(child: Text('Entry C')),
+        color: Colors.lightBlue[400],
+        child: space_pmChart(),
       ),
-      // circle chart
-      // Hitmap calender
-      // Bar chart
     ];
 
-    return Card(
-      color: Colors.lightBlue[100],
-      elevation: 10,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: <Widget>[
-            // Date Picker
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: <Widget>[
-                    SizedBox(width: 10),
-                    Text(
-                      "2021-02-02",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-                IconButton(
-                  icon: Icon(Icons.calendar_today),
-                  color: Colors.white,
-                  onPressed: () {},
-                ),
-              ],
-            ),
+    return Padding(
+      padding: const EdgeInsets.all(5.0),
+      child: Card(
+        color: Colors.lightBlue[400],
+        elevation: 3,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: <Widget>[
+              // Date Picker
+              space_date(),
 
-            // Chart PageView
-            Container(
-              height: 200,
-              child: PageView(
-                controller: pageView_controller,
-                children: items,
+              // Chart PageView
+              Container(
+                height: 200,
+                child: PageView(
+                  controller: pageView_controller,
+                  children: items,
+                ),
               ),
-            ),
 
-            // Page View Indicator
-            Container(
-              height: 20,
-              child: ScrollingPageIndicator(
-                dotColor: Colors.grey,
-                dotSelectedColor: Colors.white,
-                dotSize: 6,
-                dotSelectedSize: 8,
-                dotSpacing: 12,
-                controller: pageView_controller,
-                itemCount: items.length,
-                orientation: Axis.horizontal,
+              // Page View Indicator
+              Container(
+                height: 20,
+                child: ScrollingPageIndicator(
+                  dotColor: Colors.grey[400],
+                  dotSelectedColor: Colors.white,
+                  dotSize: 6,
+                  dotSelectedSize: 8,
+                  dotSpacing: 12,
+                  controller: pageView_controller,
+                  itemCount: items.length,
+                  orientation: Axis.horizontal,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  space_date() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: <Widget>[
+            SizedBox(width: 10),
+            Text(
+              "2021-02-02",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
               ),
             ),
           ],
         ),
-      ),
+        IconButton(
+          icon: Icon(Icons.calendar_today),
+          color: Colors.white,
+          onPressed: () {},
+        ),
+      ],
     );
   }
 
   space_Devices() {
     return Expanded(
       child: GridView.count(
-        padding: const EdgeInsets.all(8.0),
+        childAspectRatio: 1.3,
+        padding: const EdgeInsets.all(5.0),
         crossAxisCount: 2,
         // Item 나열
         children: [
           Card(
-            color: Colors.red,
-            child: Text('1'),
+            elevation: 3,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            color: Colors.white,
+            child: Column(
+              children: [
+                SizedBox(height: 15),
+                Text(
+                  'Device 1',
+                  style: TextStyle(
+                    color: Colors.lightBlue,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 5),
+                Row(
+                  children: [
+                    Expanded(
+                      child: CircleChart(
+                        progressColor: make_color('pm10', 20),
+                        progressNumber: 20,
+                        maxNumber: 160,
+                      ),
+                    ),
+                    Expanded(
+                      child: CircleChart(
+                        progressColor: make_color('pm2p5', 49),
+                        progressNumber: 31,
+                        maxNumber: 80,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
           Card(
             color: Colors.blue,
