@@ -4,6 +4,7 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 
 import 'login_page.dart';
 import 'index_page.dart';
+import 'notice_page.dart';
 
 void main() => runApp(MyApp());
 
@@ -17,6 +18,7 @@ class MyApp extends StatelessWidget {
       ),
       // home: LoginPage(), // Login page로 연결
       home: IndexPage(),
+      // home: NotificationPage(),
     );
   }
 }
@@ -88,3 +90,46 @@ class Device {
 
 final String apiUrl = 'http://www.checkpm.tk';
 var nowDate = DateTime.now();
+
+// 미세먼지 단계별 컬러
+make_color(type, value) {
+  Color return_color;
+  if (type == 'pm10') {
+    if (value <= 15) {
+      return_color = Colors.blue[600];
+    } else if (value <= 30) {
+      return_color = Colors.blue[400];
+    } else if (value <= 40) {
+      return_color = Colors.blue[200];
+    } else if (value <= 50) {
+      return_color = Colors.green;
+    } else if (value <= 75) {
+      return_color = Colors.orange;
+    } else if (value <= 100) {
+      return_color = Colors.deepOrange;
+    } else if (value <= 150) {
+      return_color = Colors.redAccent[700];
+    } else if (value > 150) {
+      return_color = Colors.black;
+    }
+  } else if (type == 'pm2p5') {
+    if (value <= 8) {
+      return_color = Colors.blue[600];
+    } else if (value <= 15) {
+      return_color = Colors.blue[400];
+    } else if (value <= 20) {
+      return_color = Colors.blue[200];
+    } else if (value <= 25) {
+      return_color = Colors.green;
+    } else if (value <= 37) {
+      return_color = Colors.orange;
+    } else if (value <= 50) {
+      return_color = Colors.deepOrange;
+    } else if (value <= 75) {
+      return_color = Colors.redAccent[700];
+    } else if (value > 76) {
+      return_color = Colors.black;
+    }
+  }
+  return return_color;
+}
