@@ -66,6 +66,10 @@ class _Login2State extends State<Login2> {
         //   context,
         //   MaterialPageRoute(builder: (context) => IndexPage(user: user)),
         // );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => IndexPage()),
+        );
       });
     } else {
       showDialog(

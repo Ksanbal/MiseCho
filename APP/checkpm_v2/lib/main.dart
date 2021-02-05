@@ -5,6 +5,7 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 import 'login_page.dart';
 import 'index_page.dart';
 import 'notice_page.dart';
+import 'detail_page.dart';
 
 void main() => runApp(MyApp());
 
@@ -16,8 +17,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.lightBlue,
       ),
-      // home: LoginPage(), // Login page로 연결
-      home: IndexPage(),
+      home: LoginPage(), // Login page로 연결
+      // home: DetailPage(),
       // home: NotificationPage(),
     );
   }

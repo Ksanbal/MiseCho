@@ -1,4 +1,7 @@
+import 'package:checkpm_v2/detail_page.dart';
+import 'package:checkpm_v2/notice_page.dart';
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:scrolling_page_indicator/scrolling_page_indicator.dart';
 import 'package:circle_chart/circle_chart.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -81,6 +84,16 @@ class _IndexPageState extends State<IndexPage> {
             color: Colors.lightBlue[400],
             onPressed: () {
               // 알림페이지로 push 설정
+              Navigator.push(
+                  context,
+                  PageTransition(
+                    type: PageTransitionType.rightToLeft,
+                    child: NotificationPage(),
+                  )
+                  // MaterialPageRoute(
+                  //   builder: (context) => NotificationPage(),
+                  // ),
+                  );
             },
           ),
         )
@@ -181,61 +194,67 @@ class _IndexPageState extends State<IndexPage> {
         crossAxisCount: 2,
         // Item 나열
         children: [
-          Card(
-            elevation: 3,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-            color: Colors.white,
-            child: Column(
-              children: [
-                SizedBox(height: 15),
-                Text(
-                  'Device 1',
-                  style: TextStyle(
-                    color: Colors.lightBlue,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 5),
-                Row(
-                  children: [
-                    Expanded(
-                      child: CircleChart(
-                        progressColor: make_color('pm10', 20),
-                        progressNumber: 20,
-                        maxNumber: 160,
-                      ),
-                    ),
-                    Expanded(
-                      child: CircleChart(
-                        progressColor: make_color('pm2p5', 49),
-                        progressNumber: 31,
-                        maxNumber: 80,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          Card(
-            color: Colors.blue,
-            child: Text('2'),
-          ),
-          Card(
-            color: Colors.green,
-            child: Text('3'),
-          ),
-          Card(
-            color: Colors.yellow,
-            child: Text('4'),
-          ),
-          Card(
-            color: Colors.cyan,
-            child: Text('5'),
-          ),
+          tmp_card(context),
+          tmp_card(context),
+          tmp_card(context),
+          tmp_card(context),
+          tmp_card(context),
+          tmp_card(context),
         ],
       ),
     );
   }
+}
+
+tmp_card(context) {
+  return Card(
+    elevation: 3,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+    color: Colors.white,
+    child: FlatButton(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      child: Column(
+        children: [
+          SizedBox(height: 15),
+          Text(
+            'Device 1',
+            style: TextStyle(
+              color: Colors.lightBlue,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 5),
+          Row(
+            children: [
+              Expanded(
+                child: CircleChart(
+                  progressColor: make_color('pm10', 20),
+                  progressNumber: 20,
+                  maxNumber: 160,
+                ),
+              ),
+              Expanded(
+                child: CircleChart(
+                  progressColor: make_color('pm2p5', 49),
+                  progressNumber: 31,
+                  maxNumber: 80,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      onPressed: () {
+        //
+        Navigator.push(
+          context,
+          PageTransition(
+            child: DetailPage(),
+            type: PageTransitionType.bottomToTop,
+            // duration: Duration(seconds: 1),
+          ),
+        );
+      },
+    ),
+  );
 }

@@ -6,8 +6,8 @@ import 'main.dart';
 // import 'detail_page.dart';
 
 class NotificationPage extends StatefulWidget {
-  final User user;
-  NotificationPage({Key key, @required this.user}) : super(key: key);
+  // final User user;
+  // NotificationPage({Key key, @required this.user}) : super(key: key);
 
   @override
   _NotificationPageState createState() => _NotificationPageState();
@@ -19,7 +19,7 @@ class _NotificationPageState extends State<NotificationPage> {
   @override
   void initState() {
     super.initState();
-    getList = LoadNoti(widget.user.token);
+    // getList = LoadNoti(widget.user.token);
   }
 
   @override
@@ -63,7 +63,7 @@ class _NotificationPageState extends State<NotificationPage> {
           color: Colors.lightBlue[400],
           onPressed: () {
             setState(() {
-              getList = LoadNoti(widget.user.token);
+              // getList = LoadNoti(widget.user.token);
             });
           },
         ),

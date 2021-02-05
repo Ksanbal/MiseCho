@@ -76,6 +76,10 @@ class _SignupPageState extends State<SignupPage> {
         //   context,
         //   MaterialPageRoute(builder: (context) => IndexPage(user: user)),
         // );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => IndexPage()),
+        );
       });
     } else {
       showDialog(
@@ -101,7 +105,10 @@ class _SignupPageState extends State<SignupPage> {
     return Align(
       alignment: Alignment.topLeft,
       child: IconButton(
-        icon: Icon(Icons.arrow_back),
+        icon: Icon(
+          Icons.arrow_back,
+          color: Colors.lightBlue[400],
+        ),
         onPressed: () => Navigator.pop(context),
       ),
     );
