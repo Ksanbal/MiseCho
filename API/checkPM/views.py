@@ -10,6 +10,9 @@ from django.db.models import Avg
 from . import serializers as se
 from . import models as mo
 
+# Crontab
+from . import cron
+
 
 # 회원관리
 @api_view(['POST'])
@@ -156,7 +159,7 @@ def device_setting_chart(request, device_id, date):
 
 
 # Device Setting Value
-@api_view(['GET', 'PUT', 'PATCH'])
+@api_view(['GET', 'PUT'])
 def device_setting_value(request, device_id):
     # Found Check
     try:
@@ -178,9 +181,9 @@ def device_setting_value(request, device_id):
                 return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         # PATCH -> 전원 끄기r
-        elif request.method == 'PATCH':
-            # 디바이스 끄는 코드 작성
-            return Response('전원 끄기', status=status.HTTP_200_OK)
+        # elif request.method == 'PATCH':
+        #     # 디바이스 끄는 코드 작성
+        #     return Response('전원 끄기', status=status.HTTP_200_OK)
     return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
@@ -218,7 +221,7 @@ def datapost(request):
                     pm10_now = n
 
             mo.Notices(
-                content=f'미세먼지 상태가 "{str_grade[pm10_now]}"입니다. 확인해주세요.',
+                content=f'미세먼지가 {pm10}로 "{str_grade[pm10_now]}"입니다. 확인해주세요.',
                 d_id=device,
                 c_id=device.c_id
             ).save()
@@ -229,7 +232,7 @@ def datapost(request):
                     pm25_now = n
 
             mo.Notices(
-                content=f'초미세먼지 상태가 "{str_grade[pm25_now]}"입니다. 확인해주세요.',
+                content=f'초미세먼지 {pm25}로 "{str_grade[pm25_now]}"입니다. 확인해주세요.',
                 d_id=device,
                 c_id=device.c_id
             ).save()
