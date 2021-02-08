@@ -6,6 +6,8 @@ from django.db.models import Avg
 def cron_job():
     now_time = datetime.now()
     target_time = now_time - timedelta(hours=1)
+    now_hour = now_time.hour
+
     now_time = now_time.strftime('%H')
     target_time = target_time.strftime('%H')
 
@@ -22,7 +24,7 @@ def cron_job():
                         time__range=[f"{now_time}:00:00", f"{now_time}:29:59"]
                     ).aggregate(Avg('pm25'))['pm25__avg']
 
-                    mo.AvgDatas.objects.create(avgpm10=avg_pm10, avgpm25=avg_pm2p5, d_id=i, c_id=i.c_id)
+                    mo.AvgDatas.objects.create(hour=(now_hour*2), avgpm10=avg_pm10, avgpm25=avg_pm2p5, d_id=i, c_id=i.c_id)
                 except Exception as ex:
                     print(f"{datetime.now()} - Avg 30 Error - {ex}")
 
@@ -37,7 +39,7 @@ def cron_job():
                         time__range=[f"{now_time}:29:00", f"{now_time}:31:00"]
                     ).aggregate(Avg('avgpm25'))['avgpm25__avg']
 
-                    mo.TotalAvgDatas.objects.create(avgpm10=total_avg_pm10, avgpm25=total_avg_pm2p5, c_id=i)
+                    mo.TotalAvgDatas.objects.create(hour=(now_hour*2), avgpm10=total_avg_pm10, avgpm25=total_avg_pm2p5, c_id=i)
                 except Exception as ex:
                     print(f"{datetime.now()} - TotalAvg 30 Error - {ex}")
 
@@ -56,7 +58,7 @@ def cron_job():
                         time__range=[f"{target_time}:30:00", f"{now_time}:00:00"]
                     ).aggregate(Avg('pm25'))['pm25__avg']
 
-                    mo.AvgDatas.objects.create(avgpm10=avg_pm10, avgpm25=avg_pm2p5, d_id=i, c_id=i.c_id)
+                    mo.AvgDatas.objects.create(hour=(now_hour*2)+1, avgpm10=avg_pm10, avgpm25=avg_pm2p5, d_id=i, c_id=i.c_id)
                 except Exception as ex:
                     print(f"{datetime.now()} - Avg 00 Error - {ex}")
 
@@ -71,7 +73,7 @@ def cron_job():
                         time__range=[f"{target_time}:59:00", f"{now_time}:01:00"]
                     ).aggregate(Avg('avgpm25'))['avgpm25__avg']
 
-                    mo.TotalAvgDatas.objects.create(avgpm10=total_avg_pm10, avgpm25=total_avg_pm2p5, c_id=i)
+                    mo.TotalAvgDatas.objects.create(hour=(now_hour*2)+1, avgpm10=total_avg_pm10, avgpm25=total_avg_pm2p5, c_id=i)
                 except Exception as ex:
                     print(f"{datetime.now()} - TotalAvg 00 Error - {ex}")
 

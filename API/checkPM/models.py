@@ -44,6 +44,7 @@ class RawDatas(models.Model):
 class AvgDatas(models.Model):
     date = models.DateField(auto_now_add=True)
     time = models.TimeField(auto_now_add=True)
+    hour = models.IntegerField()
     avgpm10 = models.FloatField()
     avgpm25 = models.FloatField()
     d_id = models.ForeignKey(Devices, on_delete=models.CASCADE, db_column='d_id')
@@ -53,6 +54,7 @@ class AvgDatas(models.Model):
 class TotalAvgDatas(models.Model):
     date = models.DateField(auto_now_add=True)
     time = models.TimeField(auto_now_add=True)
+    hour = models.IntegerField()
     avgpm10 = models.FloatField()
     avgpm25 = models.FloatField()
     c_id = models.ForeignKey(Companys, on_delete=models.CASCADE, db_column='c_id')

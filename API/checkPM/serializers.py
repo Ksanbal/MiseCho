@@ -52,7 +52,7 @@ class Total_AvgData_Serializer(serializers.ModelSerializer):
     class Meta:
         model = mo.AvgDatas
         fields = (
-            'avgpm10', 'avgpm25'
+            'hour', 'avgpm10', 'avgpm25'
         )
 
 
@@ -78,7 +78,7 @@ class DeviceSetting_Serializer(serializers.ModelSerializer):
 class AvgData_Serializer(serializers.ModelSerializer):
     class Meta:
         model = mo.AvgDatas
-        fields = ('avgpm10', 'avgpm25')
+        fields = ('hour', 'avgpm10', 'avgpm25')
 
 
 # Device Data Post
