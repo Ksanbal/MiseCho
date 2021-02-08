@@ -1,31 +1,52 @@
 import 'package:flutter/material.dart';
-import 'package:scrolling_page_indicator/scrolling_page_indicator.dart';
+import 'package:flutter_material_pickers/flutter_material_pickers.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 import './detail_spaces/space_chart.dart';
 import 'main.dart';
 
+Setting nowSetting;
+bool detail_isEmptyChart = true;
+
+List<FlSpot> detail_pm10Spot = [];
+List<FlSpot> detail_pm25Spot = [];
+
 class DetailPage extends StatefulWidget {
-  // final Device device;
-  // DetailPage({Key key, @required this.device}) : super(key: key);
+  final Device device;
+  DetailPage({Key key, @required this.device}) : super(key: key);
 
   @override
   _DetailPageState createState() => _DetailPageState();
 }
 
 class _DetailPageState extends State<DetailPage> {
+  // 설정 변경 확인
+  bool isChanged = false;
+
+  @override
+  void initState() {
+    super.initState();
+    LoadChart(widget.device.device_id,
+        '${nowDate.year}-${nowDate.month}-${nowDate.day}', widget.device.token);
+    LoadSetting(widget.device.device_id, widget.device.token);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.lightBlue[400],
+      appBar: space_AppBar(context),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: <Widget>[
-            // AppBar
-            SizedBox(height: 30),
-            space_AppBar(context),
-
             // Chart
             space_Chart(),
             // Setting
@@ -36,185 +57,324 @@ class _DetailPageState extends State<DetailPage> {
       ),
     );
   }
-}
 
-space_AppBar(context) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: <Widget>[
-      // Back Icon Btn
-      IconButton(
-        icon: Icon(
-          Icons.arrow_back,
-          color: Colors.white,
-        ),
+  space_AppBar(context) {
+    space_dialog() {
+      return AlertDialog(
+        title: Text('변경사항'),
+        content: Text('${nowSetting.name}' + '의 설정을 변경하시겠습니까?'),
+        actions: <Widget>[
+          FlatButton(
+              onPressed: () async {
+                // 변경사항 적용 코드 자리
+                var data = GetSaveData(); // PUT할 데이터 값
+                final response = await http.put(
+                  '$apiUrl/api/app/device/value/${widget.device.device_id}/',
+                  headers: <String, String>{
+                    'Authorization': "Token ${widget.device.token}"
+                  },
+                  body: data,
+                );
+
+                Navigator.of(context).pop();
+                if (response.statusCode == 200) {
+                  showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('변경사항'),
+                          content: Text('변경사항이 저장되었습니다.'),
+                          actions: <Widget>[
+                            FlatButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                Navigator.of(context).pop();
+                              },
+                              child: Text('OK'),
+                            )
+                          ],
+                        );
+                      });
+                } else {
+                  showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('변경사항'),
+                          content: Text('변경사항이 저장되지 않았습니다.'),
+                          actions: <Widget>[
+                            FlatButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                Navigator.of(context).pop();
+                              },
+                              child: Text('OK'),
+                            )
+                          ],
+                        );
+                      });
+                }
+              },
+              child: Text('Yes')),
+          FlatButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              },
+              child: Text('No')),
+        ],
+      );
+    }
+
+    return AppBar(
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back),
+        color: Colors.white,
         onPressed: () {
-          Navigator.pop(context);
+          if (isChanged) {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (BuildContext context) => space_dialog(),
+            );
+          } else {
+            Navigator.pop(context);
+          }
         },
       ),
-      // Text
-      Text(
+      title: Text(
         "Device 1",
         style: TextStyle(
           fontSize: 20,
           color: Colors.white,
         ),
       ),
-      SizedBox(width: 40),
-      //   // Text
-      //   Row(
-      //     children: <Widget>[
-      //       SizedBox(width: 15),
-      //       Text(
-      //         "MiseCho",
-      //         style: TextStyle(
-      //           fontSize: 20,
-      //           fontFamily: "Pacifico",
-      //           color: Colors.lightBlue[400],
-      //         ),
-      //       ),
-      //     ],
-      //   ),
-      //   // Notice Icon
-      //   Align(
-      //     alignment: Alignment.topRight,
-      //     child: IconButton(
-      //       icon: Icon(Icons.notifications),
-      //       color: Colors.lightBlue[400],
-      //       onPressed: () {
-      //         // 알림페이지로 push 설정
-      //       },
-      //     ),
-      //   )
-    ],
-  );
-}
-
-space_Chart() {
-  space_date() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: <Widget>[
-            SizedBox(width: 10),
-            Text(
-              "2021-02-02",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.lightBlue[400],
-              ),
-            ),
-          ],
-        ),
-        IconButton(
-          icon: Icon(Icons.calendar_today),
-          color: Colors.lightBlue[400],
-          onPressed: () {},
-        ),
-      ],
+      backgroundColor: Colors.lightBlue[400],
+      elevation: 0,
     );
   }
 
-  return Padding(
-    padding: const EdgeInsets.only(bottom: 8.0),
-    child: Card(
-      color: Colors.white,
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      child: Column(
-        children: <Widget>[
-          // Date Picker
-          space_date(),
-          // Chart PageView
-          Container(
-            height: 300,
-            color: Colors.white,
-            child: space_pmChart(),
+  space_Chart() {
+    // 날짜 부분
+    space_date() {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: <Widget>[
+              SizedBox(width: 10),
+              Text(
+                "${nowDate.year}-${nowDate.month}-${nowDate.day}",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.lightBlue[400],
+                ),
+              ),
+            ],
           ),
-          SizedBox(height: 13),
+          IconButton(
+            icon: Icon(Icons.calendar_today),
+            color: Colors.lightBlue[400],
+            onPressed: () {
+              showMaterialDatePicker(
+                context: context,
+                selectedDate: nowDate,
+                onChanged: (value) => setState(() {
+                  nowDate = value;
+                  LoadChart(
+                      widget.device.device_id,
+                      '${nowDate.year}-${nowDate.month}-${nowDate.day}',
+                      widget.device.token);
+                }),
+              );
+            },
+          ),
+        ],
+      );
+    }
+
+    // chart
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Card(
+        color: Colors.white,
+        elevation: 3,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        child: Column(
+          children: <Widget>[
+            // Date Picker
+            space_date(),
+            // Chart PageView
+            Container(
+              height: 300,
+              color: Colors.white,
+              child: space_pmChart(detail_pm10Spot, detail_pm25Spot),
+            ),
+            SizedBox(height: 13),
+          ],
+        ),
+      ),
+    );
+  }
+
+  space_Setting() {
+    List<String> PMNotice = <String>[
+      '최고',
+      '좋음',
+      '양호',
+      '보통',
+      '나쁨',
+      '상당히 나쁨',
+      '매우 나쁨',
+      '최악'
+    ];
+
+    return Expanded(
+      child: Row(
+        children: [
+          Expanded(
+            child: Card(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              elevation: 3,
+              child: FlatButton(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "미세먼지 측정주기",
+                      style: TextStyle(
+                        fontSize: 18,
+                        letterSpacing: -1,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    Text(
+                      "${nowSetting.freq}분",
+                      style: TextStyle(
+                        color: Colors.lightBlue[400],
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                onPressed: () {
+                  showMaterialNumberPicker(
+                    context: context,
+                    title: '미세먼지 측정주기',
+                    minNumber: 1,
+                    maxNumber: 60,
+                    selectedNumber: nowSetting.freq,
+                    onChanged: (value) => setState(() {
+                      nowSetting.freq = value;
+                      isChanged = true;
+                    }),
+                  );
+                },
+              ),
+            ),
+          ),
+          Expanded(
+            child: Card(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              elevation: 3,
+              child: FlatButton(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "알림 미세먼지 농도",
+                      style: TextStyle(
+                        fontSize: 18,
+                        letterSpacing: -1,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    Text(
+                      "${PMNotice[nowSetting.pmhigh]}",
+                      style: TextStyle(
+                        color: text_color("${PMNotice[nowSetting.pmhigh]}"),
+                        fontSize: 25,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                onPressed: () {
+                  showMaterialScrollPicker(
+                    context: context,
+                    title: '위험 미세먼지 정도',
+                    items: PMNotice,
+                    selectedItem: PMNotice[nowSetting.pmhigh],
+                    onChanged: (value) => setState(() {
+                      nowSetting.pmhigh = PMNotice.indexOf(value);
+                      isChanged = true;
+                    }),
+                  );
+                },
+              ),
+            ),
+          ),
         ],
       ),
-    ),
-  );
-}
+    );
+  }
 
-space_Setting() {
-  return Expanded(
-    child: Row(
-      children: [
-        Expanded(
-          child: Card(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-            elevation: 3,
-            child: FlatButton(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15)),
-              onPressed: () {},
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "미세먼지 측정주기",
-                    style: TextStyle(
-                      fontSize: 18,
-                      letterSpacing: -1,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    "6분",
-                    style: TextStyle(
-                      color: Colors.lightBlue[400],
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-        Expanded(
-          child: Card(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-            elevation: 3,
-            child: FlatButton(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15)),
-              onPressed: () {},
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "알림 미세먼지 농도",
-                    style: TextStyle(
-                      fontSize: 18,
-                      letterSpacing: -1,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    "상당히 나쁨",
-                    style: TextStyle(
-                      color: text_color("상당히 나쁨"),
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
+  // 디바이스 Chart 데이터 HTTP GET
+  LoadChart(device_id, date, token) async {
+    // List<double> pmHour = List<double>();
+    List<double> pm10value = List<double>();
+    List<double> pm25value = List<double>();
+
+    var response = await http.get(
+        '$apiUrl/api/app/device/chart/$device_id/$date/',
+        headers: <String, String>{'Authorization': "Token $token"});
+
+    if (response.statusCode == 200) {
+      List jsonList = jsonDecode(response.body);
+      if (jsonList.isEmpty) {
+        setState(() {
+          detail_isEmptyChart = true;
+        });
+      } else {
+        // for 돌려서 리스트로 변환
+        for (var i in jsonList) {
+          // pmHour.add(i['hour'].toDouble());
+          pm10value.add(i['avgpm10']);
+          pm25value.add(i['avgpm25']);
+        }
+        // 리스트를 FlSpot으로 변환
+        setState(
+          () {
+            detail_isEmptyChart = false;
+            detail_pm10Spot = pm10value.asMap().entries.map((e) {
+              return FlSpot(e.key.toDouble(), e.value);
+            }).toList();
+            detail_pm25Spot = pm25value.asMap().entries.map((e) {
+              return FlSpot(e.key.toDouble(), e.value);
+            }).toList();
+            // for (int i; i < pmHour.length; i++) {
+            //   detail_pm10Spot.add(FlSpot(pmHour[i], pm10value[i]));
+            //   detail_pm25Spot.add(FlSpot(pmHour[i], pm25value[i]));
+            // }
+          },
+        );
+      }
+    } else {
+      throw Exception('Faild to load Get');
+    }
+  }
 }
 
 text_color(value) {
@@ -238,4 +398,54 @@ text_color(value) {
     return_color = Colors.black;
   }
   return return_color;
+}
+
+// 디바이스 세팅 GET
+LoadSetting(device_id, token) async {
+  var response = await http.get('$apiUrl/api/app/device/value/$device_id/',
+      headers: <String, String>{'Authorization': "Token $token"});
+
+  var jsonData = json.decode(utf8.decode(response.bodyBytes));
+
+  if (response.statusCode == 200) {
+    nowSetting = Setting.fromJson(jsonData);
+  } else {
+    throw Exception('Faild to load Get');
+  }
+}
+
+class Setting {
+  int id;
+  String name;
+  bool connect;
+  int freq;
+  int pmhigh;
+  int c_id;
+
+  Setting(
+      {this.id, this.name, this.connect, this.freq, this.pmhigh, this.c_id});
+
+  factory Setting.fromJson(Map<String, dynamic> json) {
+    return Setting(
+      id: json['id'],
+      name: json['name'],
+      connect: json['connect'],
+      freq: json['freq'],
+      pmhigh: json['pmhigh'],
+      c_id: json['c_id'],
+    );
+  }
+}
+
+// 디바이스 세팅 PUT
+GetSaveData() {
+  Map data = {
+    'name': nowSetting.name,
+    'connect': nowSetting.connect.toString(),
+    'freq': nowSetting.freq.toString(),
+    'pmhigh': nowSetting.pmhigh.toString(),
+    'c_id': nowSetting.c_id.toString(),
+  };
+
+  return data;
 }

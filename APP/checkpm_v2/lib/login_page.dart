@@ -57,36 +57,36 @@ class _Login2State extends State<Login2> {
     };
     var jsonData = null;
     var response = await http.post('$apiUrl/api/app/auth/signin/', body: data);
+    print(response.body);
     if (response.statusCode == 200) {
       jsonData = json.decode(response.body);
       print('로그인');
-      setState(() {
-        final user = User(jsonData['token']);
-        // Navigator.pushReplacement(
-        //   context,
-        //   MaterialPageRoute(builder: (context) => IndexPage(user: user)),
-        // );
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => IndexPage()),
-        );
-      });
+      setState(
+        () {
+          final user = User(jsonData['token']);
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => IndexPage(user: user)),
+          );
+        },
+      );
     } else {
       showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('${response.statusCode}'),
-              content: Text(utf8.decode(response.bodyBytes)),
-              actions: <Widget>[
-                FlatButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text("Close"))
-              ],
-            );
-          });
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('${response.statusCode}'),
+            content: Text(utf8.decode(response.bodyBytes)),
+            actions: <Widget>[
+              FlatButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text("Close"))
+            ],
+          );
+        },
+      );
     }
   }
 

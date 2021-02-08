@@ -539,7 +539,7 @@ class _IndexPageState extends State<IndexPage> {
         headers: <String, String>{'Authorization': "Token $token"});
 
     if (response.statusCode == 200) {
-      List jsonList = jsonDecode(utf8.decode(response.bodyBytes));
+      List jsonList = jsonDecode(response.body);
       if (jsonList.isEmpty) {
         setState(() {
           isEmptyChart = true;

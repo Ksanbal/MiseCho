@@ -1,17 +1,15 @@
-import 'package:checkpm_v2/detail_page.dart';
-import 'package:checkpm_v2/notice_page.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:scrolling_page_indicator/scrolling_page_indicator.dart';
 import 'package:circle_chart/circle_chart.dart';
 import 'package:fl_chart/fl_chart.dart';
-// import 'package:flutter_material_pickers/flutter_material_pickers.dart';
+import 'package:flutter_material_pickers/flutter_material_pickers.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import 'main.dart';
-// import 'notification_page.dart';
-// import 'detail_page.dart';
+import 'notice_page.dart';
+import 'detail_page.dart';
 
 import './index_spaces/space_circleInfo.dart';
 import './index_spaces/space_heatmap.dart';
@@ -24,8 +22,8 @@ List<FlSpot> pm10Spot = [];
 List<FlSpot> pm25Spot = [];
 
 class IndexPage extends StatefulWidget {
-  // final User user;
-  // IndexPage({Key key, @required this.user}) : super(key: key);
+  final User user;
+  IndexPage({Key key, @required this.user}) : super(key: key);
 
   @override
   _IndexPageState createState() => _IndexPageState();
@@ -33,20 +31,26 @@ class IndexPage extends StatefulWidget {
 
 class _IndexPageState extends State<IndexPage> {
   final pageView_controller = new PageController();
+  Future<List<DeviceItem>> getList;
 
   @override
-  void initStae() {
+  void initState() {
     super.initState();
+    var getDate = '${nowDate.year}-${nowDate.month}-${nowDate.day}';
+    LoadChart(
+      '${nowDate.year}-${nowDate.month}-${nowDate.day}',
+      widget.user.token,
+    );
+    getList = LoadDevice(getDate, widget.user.token);
   }
 
   @override
   Widget build(BuildContext) {
     return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: space_AppBar(),
       body: Column(
         children: <Widget>[
-          // App bar
-          SizedBox(height: 30),
-          space_AppBar(),
           // Chart
           space_Chart(),
           // device grid
@@ -59,44 +63,34 @@ class _IndexPageState extends State<IndexPage> {
 
 // Widget
   space_AppBar() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        // Text
-        Row(
-          children: <Widget>[
-            SizedBox(width: 15),
-            Text(
-              "MiseCho",
-              style: TextStyle(
-                fontSize: 20,
-                fontFamily: "Pacifico",
-                color: Colors.lightBlue[400],
-              ),
-            ),
-          ],
+    return AppBar(
+      backgroundColor: Colors.white,
+      elevation: 0,
+      title: Text(
+        "MiseCho",
+        style: TextStyle(
+          fontSize: 20,
+          fontFamily: "Pacifico",
+          color: Colors.lightBlue[400],
         ),
-        // Notice Icon
-        Align(
-          alignment: Alignment.topRight,
-          child: IconButton(
-            icon: Icon(Icons.notifications),
-            color: Colors.lightBlue[400],
-            onPressed: () {
-              // 알림페이지로 push 설정
-              Navigator.push(
-                  context,
-                  PageTransition(
-                    type: PageTransitionType.rightToLeft,
-                    child: NotificationPage(),
-                  )
-                  // MaterialPageRoute(
-                  //   builder: (context) => NotificationPage(),
-                  // ),
-                  );
-            },
-          ),
-        )
+      ),
+      actions: <Widget>[
+        IconButton(
+          icon: Icon(Icons.notifications),
+          color: Colors.lightBlue[400],
+          onPressed: () {
+            // 알림페이지로 push 설정
+            Navigator.push(
+              context,
+              PageTransition(
+                type: PageTransitionType.rightToLeft,
+                child: NotificationPage(
+                  user: widget.user,
+                ),
+              ),
+            );
+          },
+        ),
       ],
     );
   }
@@ -113,7 +107,7 @@ class _IndexPageState extends State<IndexPage> {
       ),
       Container(
         color: Colors.lightBlue[400],
-        child: space_pmChart(),
+        child: space_pmChart(pm10Spot, pm25Spot),
       ),
     ];
 
@@ -168,7 +162,7 @@ class _IndexPageState extends State<IndexPage> {
           children: <Widget>[
             SizedBox(width: 10),
             Text(
-              "2021-02-02",
+              "${nowDate.year}-${nowDate.month}-${nowDate.day}",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -180,81 +174,195 @@ class _IndexPageState extends State<IndexPage> {
         IconButton(
           icon: Icon(Icons.calendar_today),
           color: Colors.white,
-          onPressed: () {},
+          onPressed: () {
+            showMaterialDatePicker(
+              context: context,
+              selectedDate: nowDate,
+              onChanged: (value) => setState(
+                () {
+                  nowDate = value;
+                  LoadChart('${nowDate.year}-${nowDate.month}-${nowDate.day}',
+                      widget.user.token);
+                  getList = LoadDevice(
+                      '${nowDate.year}-${nowDate.month}-${nowDate.day}',
+                      widget.user.token);
+                },
+              ),
+            );
+          },
         ),
       ],
     );
   }
 
   space_Devices() {
-    return Expanded(
-      child: GridView.count(
-        childAspectRatio: 1.3,
-        padding: const EdgeInsets.all(5.0),
-        crossAxisCount: 2,
-        // Item 나열
-        children: [
-          tmp_card(context),
-          tmp_card(context),
-          tmp_card(context),
-          tmp_card(context),
-          tmp_card(context),
-          tmp_card(context),
-        ],
-      ),
-    );
-  }
-}
-
-tmp_card(context) {
-  return Card(
-    elevation: 3,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-    color: Colors.white,
-    child: FlatButton(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      child: Column(
-        children: [
-          SizedBox(height: 15),
-          Text(
-            'Device 1',
-            style: TextStyle(
-              color: Colors.lightBlue,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: 5),
-          Row(
+    Widget _buildItemWidget(DeviceItem deviceItem) {
+      return Card(
+        elevation: 3,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        color: Colors.white,
+        child: FlatButton(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          child: Column(
             children: [
-              Expanded(
-                child: CircleChart(
-                  progressColor: make_color('pm10', 20),
-                  progressNumber: 20,
-                  maxNumber: 160,
+              SizedBox(height: 15),
+              Text(
+                deviceItem.name,
+                style: TextStyle(
+                  color: Colors.lightBlue,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              Expanded(
-                child: CircleChart(
-                  progressColor: make_color('pm2p5', 49),
-                  progressNumber: 31,
-                  maxNumber: 80,
-                ),
+              Row(
+                children: [
+                  // PM10
+                  Expanded(
+                    child: CircleChart(
+                      progressColor: make_color('pm10', deviceItem.avgpm10),
+                      progressNumber:
+                          (deviceItem.avgpm10 > 0) ? deviceItem.avgpm10 : 1,
+                      maxNumber: 160,
+                    ),
+                  ),
+                  // PM2p5
+                  Expanded(
+                    child: CircleChart(
+                      progressColor: make_color('pm2p5', deviceItem.avgpm25),
+                      progressNumber:
+                          (deviceItem.avgpm25 > 0) ? deviceItem.avgpm25 : 1,
+                      maxNumber: 80,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
-      onPressed: () {
-        //
-        Navigator.push(
-          context,
-          PageTransition(
-            child: DetailPage(),
-            type: PageTransitionType.bottomToTop,
-            // duration: Duration(seconds: 1),
-          ),
+          onPressed: () {
+            final device = Device(widget.user.token, deviceItem.id);
+            Navigator.push(
+              context,
+              PageTransition(
+                child: DetailPage(device: device),
+                type: PageTransitionType.bottomToTop,
+              ),
+            );
+          },
+        ),
+      );
+    }
+
+    return Expanded(
+      child: isEmptyDevice
+          ? Center(child: CircularProgressIndicator())
+          : FutureBuilder<List<DeviceItem>>(
+              future: getList,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return GridView.builder(
+                    padding: const EdgeInsets.all(5.0),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      childAspectRatio: 1.2,
+                      crossAxisCount: 2,
+                    ),
+                    itemCount: snapshot.data.length,
+                    itemBuilder: (context, index) {
+                      DeviceItem deviceItem = snapshot.data[index];
+                      return _buildItemWidget(deviceItem);
+                    },
+                  );
+                }
+              },
+            ),
+    );
+  }
+
+  // 메인페이지 Chart 데이터 HTTP GET
+  LoadChart(date, token) async {
+    // List<double> pmHour = List<double>();
+    List<double> pm10value = List<double>();
+    List<double> pm25value = List<double>();
+
+    var response = await http.get('$apiUrl/api/app/main/chart/$date/',
+        headers: <String, String>{'Authorization': "Token $token"});
+
+    if (response.statusCode == 200) {
+      List jsonList = jsonDecode(response.body);
+      if (jsonList.isEmpty) {
+        setState(() {
+          isEmptyChart = true;
+        });
+      } else {
+        // for 돌려서 리스트로 변환
+        for (var i in jsonList) {
+          // pmHour.add(i['hour'].toDouble());
+          pm10value.add(i['avgpm10']);
+          pm25value.add(i['avgpm25']);
+        }
+        // 리스트를 FlSpot으로 변환
+        setState(
+          () {
+            isEmptyChart = false;
+            pm10Spot = pm10value.asMap().entries.map((e) {
+              return FlSpot(e.key.toDouble(), e.value);
+            }).toList();
+            pm25Spot = pm25value.asMap().entries.map((e) {
+              return FlSpot(e.key.toDouble(), e.value);
+            }).toList();
+            // for (int i; i < pmHour.length; i++) {
+            //   pm10Spot.add(FlSpot(pmHour[i], pm10value[i]));
+            //   pm25Spot.add(FlSpot(pmHour[i], pm25value[i]));
+            // }
+
+            print(pm10Spot);
+            print(pm25Spot);
+          },
         );
-      },
-    ),
-  );
+      }
+    } else {
+      throw Exception('Faild to load Get');
+    }
+  }
+}
+
+// 메인페이지 디바이스 리스트 HTTP GET
+Future<List<DeviceItem>> LoadDevice(date, token) async {
+  var response = await http.get('$apiUrl/api/app/main/device/$date/',
+      headers: <String, String>{'Authorization': "Token $token"});
+
+  if (response.statusCode == 200) {
+    List jsonList = jsonDecode(utf8.decode(response.bodyBytes));
+    if (jsonList.isEmpty) {
+      isEmptyDevice = true;
+    } else {
+      isEmptyDevice = false;
+      var getList =
+          jsonList.map((element) => DeviceItem.fromJson(element)).toList();
+
+      return getList;
+    }
+  } else {
+    throw Exception('Faild to load Get');
+  }
+}
+
+// 메인페이지 디바이스 리스트 class
+class DeviceItem {
+  final int id;
+  final String name;
+  final bool connect;
+  final double avgpm10;
+  final double avgpm25;
+
+  DeviceItem({this.id, this.name, this.connect, this.avgpm10, this.avgpm25});
+
+  factory DeviceItem.fromJson(Map<String, dynamic> json) {
+    return DeviceItem(
+      id: json['id'],
+      name: json['name'],
+      connect: json['connect'],
+      avgpm10: json['avgpm10'],
+      avgpm25: json['avgpm25'],
+    );
+  }
 }

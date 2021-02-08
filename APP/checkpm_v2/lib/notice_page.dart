@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'main.dart';
-// import 'detail_page.dart';
+import 'detail_page.dart';
 
 class NotificationPage extends StatefulWidget {
-  // final User user;
-  // NotificationPage({Key key, @required this.user}) : super(key: key);
+  final User user;
+  NotificationPage({Key key, @required this.user}) : super(key: key);
 
   @override
   _NotificationPageState createState() => _NotificationPageState();
@@ -19,19 +20,19 @@ class _NotificationPageState extends State<NotificationPage> {
   @override
   void initState() {
     super.initState();
-    // getList = LoadNoti(widget.user.token);
+    getList = LoadNoti(widget.user.token);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: space_AppBar(),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: <Widget>[
             // AppBar
-            SizedBox(height: 20),
-            space_AppBar(),
             space_ListView(),
           ],
         ),
@@ -40,30 +41,31 @@ class _NotificationPageState extends State<NotificationPage> {
   }
 
   space_AppBar() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        IconButton(
-          icon: Icon(Icons.arrow_back),
+    return AppBar(
+      elevation: 0,
+      backgroundColor: Colors.white,
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back),
+        color: Colors.lightBlue[400],
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      ),
+      title: Text(
+        "Notice",
+        style: TextStyle(
+          fontSize: 20,
           color: Colors.lightBlue[400],
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          fontWeight: FontWeight.bold,
         ),
-        Text(
-          "Notice",
-          style: TextStyle(
-            fontSize: 20,
-            color: Colors.lightBlue[400],
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+      ),
+      actions: [
         IconButton(
           icon: Icon(Icons.refresh),
           color: Colors.lightBlue[400],
           onPressed: () {
             setState(() {
-              // getList = LoadNoti(widget.user.token);
+              getList = LoadNoti(widget.user.token);
             });
           },
         ),
@@ -100,11 +102,14 @@ class _NotificationPageState extends State<NotificationPage> {
         title: Text(item.name),
         subtitle: Text(item.content),
         onTap: () {
-          // final device = Device(widget.user.token, item.dId);
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(builder: (context) => DetailPage(device: device)),
-          // );
+          final device = Device(widget.user.token, item.dId);
+          Navigator.push(
+            context,
+            PageTransition(
+              child: DetailPage(device: device),
+              type: PageTransitionType.bottomToTop,
+            ),
+          );
         },
       ),
     );

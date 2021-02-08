@@ -46,7 +46,7 @@ class LoginPage extends StatelessWidget {
             color: Colors.white,
           ),
         ),
-        SizedBox(width: 20.0, height: 100.0),
+        SizedBox(width: 15.0, height: 100.0),
         SizedBox(
           width: 200.0,
           height: 200.0,
@@ -59,9 +59,9 @@ class LoginPage extends StatelessWidget {
             ),
             textAlign: TextAlign.start,
             totalRepeatCount: 1,
-            duration: Duration(milliseconds: 1000),
+            duration: Duration(milliseconds: 900),
             onFinished: () {
-              Navigator.push(
+              Navigator.pushReplacement(
                 context,
                 PageTransition(
                   type: PageTransitionType.bottomToTop,
@@ -89,7 +89,9 @@ class Device {
   Device(this.token, this.device_id);
 }
 
-final String apiUrl = 'http://www.checkpm.tk';
+// final String apiUrl = 'http://www.checkpm.tk';
+final String apiUrl =
+    'http://ec2-52-78-162-155.ap-northeast-2.compute.amazonaws.com';
 var nowDate = DateTime.now();
 
 // 미세먼지 단계별 컬러

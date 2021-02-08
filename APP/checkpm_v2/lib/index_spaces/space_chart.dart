@@ -9,8 +9,10 @@ bool showpm10 = true;
 List<FlSpot> pm10Spot = [];
 List<FlSpot> pm25Spot = [];
 
-space_pmChart() {
+space_pmChart(pm10, pm2p5) {
   final pmchart_controller = new PageController();
+  pm10Spot = pm10;
+  pm25Spot = pm2p5;
 
   List<Widget> pm_items = [
     Container(
@@ -138,23 +140,23 @@ LineChartData PM10Data() {
           margin: 10,
           getTitles: (value) {
             switch (value.toInt()) {
-              case 0:
+              case 1:
                 return '0';
-              case 3:
-                return '3';
               case 6:
-                return '6';
-              case 9:
-                return '9';
+                return '3';
               case 12:
-                return '12';
-              case 15:
-                return '15';
+                return '6';
               case 18:
-                return '18';
-              case 21:
-                return '21';
+                return '9';
               case 24:
+                return '12';
+              case 30:
+                return '15';
+              case 36:
+                return '18';
+              case 42:
+                return '21';
+              case 48:
                 return '24';
             }
             return '';
@@ -171,16 +173,16 @@ LineChartData PM10Data() {
             switch (value.toInt()) {
               case 0:
                 return '최고';
-              case 15:
-                return '좋음';
-              case 30:
-                return '양호';
+              // case 15:
+              //   return '좋음';
+              // case 30:
+              //   return '양호';
               case 40:
                 return '보통';
-              case 50:
-                return '나쁨';
-              case 75:
-                return '상당히\n나쁨';
+              // case 50:
+              //   return '나쁨';
+              // case 75:
+              // return '상당히\n나쁨';
               case 100:
                 return '매우\n나쁨';
               case 150:
@@ -210,8 +212,8 @@ LineChartData PM10Data() {
           ),
         ),
       ),
-      minX: 0,
-      maxX: 24,
+      minX: 1,
+      maxX: 48,
       maxY: 160,
       minY: 0,
       lineBarsData: isEmptyChart ? EmptyLinesBarData() : linesBarData1());
@@ -237,23 +239,23 @@ LineChartData PM25Data() {
           margin: 10,
           getTitles: (value) {
             switch (value.toInt()) {
-              case 0:
+              case 1:
                 return '0';
-              case 3:
-                return '3';
               case 6:
-                return '6';
-              case 9:
-                return '9';
+                return '3';
               case 12:
-                return '12';
-              case 15:
-                return '15';
+                return '6';
               case 18:
-                return '18';
-              case 21:
-                return '21';
+                return '9';
               case 24:
+                return '12';
+              case 30:
+                return '15';
+              case 36:
+                return '18';
+              case 42:
+                return '21';
+              case 48:
                 return '24';
             }
             return '';
@@ -270,16 +272,16 @@ LineChartData PM25Data() {
             switch (value.toInt()) {
               case 0:
                 return '최고';
-              case 10:
-                return '좋음';
-              case 15:
-                return '양호';
+              // case 10:
+              //   return '좋음';
+              // case 15:
+              //   return '양호';
               case 20:
                 return '보통';
-              case 25:
-                return '나쁨';
-              case 35:
-                return '상당히\n나쁨';
+              // case 25:
+              //   return '나쁨';
+              // case 35:
+              //   return '상당히\n나쁨';
               case 50:
                 return '매우\n나쁨';
               case 75:
@@ -383,41 +385,3 @@ List<LineChartBarData> linesBarData2() {
 
   return [lineChartBarData2];
 }
-
-// // 디바이스 Chart 데이터 HTTP GET
-// LoadChart(device_id, date, token) async {
-//   List<double> pm10value = List<double>();
-//   List<double> pm25value = List<double>();
-
-//   var response = await http.get(
-//       '$apiUrl/api/app/device/chart/$device_id/$date/',
-//       headers: <String, String>{'Authorization': "Token $token"});
-//   if (response.statusCode == 200) {
-//     List jsonList = jsonDecode(response.body);
-//     if (jsonList.isEmpty) {
-//       setState(() {
-//         isEmptyChart = true;
-//       });
-//     } else {
-//       // for 돌려서 리스트로 변환
-//       for (var i in jsonList) {
-//         pm10value.add(i['avgpm10']);
-//         pm25value.add(i['avgpm25']);
-//       }
-//       // 리스트를 FlSpot으로 변환
-//       setState(
-//         () {
-//           isEmptyChart = false;
-//           pm10Spot = pm10value.asMap().entries.map((e) {
-//             return FlSpot(e.key.toDouble(), e.value);
-//           }).toList();
-//           pm25Spot = pm25value.asMap().entries.map((e) {
-//             return FlSpot(e.key.toDouble(), e.value);
-//           }).toList();
-//         },
-//       );
-//     }
-//   } else {
-//     throw Exception('Faild to load Get');
-//   }
-// }
