@@ -23,6 +23,14 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.7.5
+
+flutter_icons:
+  android: true
+  ios: false
+  image_path: "assets/MiseCho.png"
+  adaptive_icon_background: "#191919"
+  adaptive_icon_foreground: "assets/MiseCho.png"
 
 flutter:
   uses-material-design: true
