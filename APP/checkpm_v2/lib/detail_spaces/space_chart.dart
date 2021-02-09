@@ -2,30 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:scrolling_page_indicator/scrolling_page_indicator.dart';
 import 'package:fl_chart/fl_chart.dart';
 
+import '../main.dart' as main;
+
 List<FlSpot> _pm10Spot = [];
 List<FlSpot> _pm25Spot = [];
-bool _isEmptyChart = false;
+bool _isEmptyChart;
 
 space_pmChart(pm10, pm2p5) {
   final pmchart_controller = new PageController();
   _pm10Spot = pm10;
   _pm25Spot = pm2p5;
-  _isEmptyChart = false;
-  // if (_pm10Spot.isEmpty) {
-  //   _isEmptyChart = true;
-  // }
 
-  print(_pm10Spot);
-  print(_pm25Spot);
-  print(_isEmptyChart);
+  _isEmptyChart = (_pm10Spot.isNotEmpty) ? false : true;
 
   List<Widget> pm_items = [
     Column(
       children: [
         Align(
-          alignment: Alignment.topLeft,
+          alignment: Alignment.center,
           child: Text(
-            "   Mise",
+            "Mise",
             style: TextStyle(
               color: Colors.lightBlue[400],
               fontSize: 20,
@@ -74,9 +70,9 @@ space_pmChart(pm10, pm2p5) {
     Column(
       children: [
         Align(
-          alignment: Alignment.centerLeft,
+          alignment: Alignment.center,
           child: Text(
-            "   ChoMise",
+            "ChoMise",
             style: TextStyle(
               color: Colors.lightBlue[400],
               fontSize: 20,
@@ -178,21 +174,21 @@ LineChartData PM10Data() {
             switch (value.toInt()) {
               case 0:
                 return '0';
-              case 3:
-                return '3';
               case 6:
-                return '6';
-              case 9:
-                return '9';
+                return '3';
               case 12:
-                return '12';
-              case 15:
-                return '15';
+                return '6';
               case 18:
-                return '18';
-              case 21:
-                return '21';
+                return '9';
               case 24:
+                return '12';
+              case 30:
+                return '15';
+              case 36:
+                return '18';
+              case 42:
+                return '21';
+              case 48:
                 return '24';
             }
             return '';
@@ -249,7 +245,7 @@ LineChartData PM10Data() {
         ),
       ),
       minX: 0,
-      maxX: 24,
+      maxX: 48,
       maxY: 160,
       minY: 0,
       lineBarsData: _isEmptyChart ? EmptyLinesBarData() : linesBarData1());
@@ -277,21 +273,21 @@ LineChartData PM25Data() {
             switch (value.toInt()) {
               case 0:
                 return '0';
-              case 3:
-                return '3';
               case 6:
-                return '6';
-              case 9:
-                return '9';
+                return '3';
               case 12:
-                return '12';
-              case 15:
-                return '15';
+                return '6';
               case 18:
-                return '18';
-              case 21:
-                return '21';
+                return '9';
               case 24:
+                return '12';
+              case 30:
+                return '15';
+              case 36:
+                return '18';
+              case 42:
+                return '21';
+              case 48:
                 return '24';
             }
             return '';
@@ -308,16 +304,16 @@ LineChartData PM25Data() {
             switch (value.toInt()) {
               case 0:
                 return '최고';
-              case 10:
-                return '좋음';
-              case 15:
-                return '양호';
+              // case 10:
+              //   return '좋음';
+              // case 15:
+              //   return '양호';
               case 20:
                 return '보통';
-              case 25:
-                return '나쁨';
-              case 35:
-                return '상당히\n나쁨';
+              // case 25:
+              //   return '나쁨';
+              // case 35:
+              //   return '상당히\n나쁨';
               case 50:
                 return '매우\n나쁨';
               case 75:
@@ -348,7 +344,7 @@ LineChartData PM25Data() {
         ),
       ),
       minX: 0,
-      maxX: 24,
+      maxX: 48,
       maxY: 80,
       minY: 0,
       lineBarsData: _isEmptyChart ? EmptyLinesBarData() : linesBarData2());
