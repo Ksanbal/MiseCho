@@ -4,11 +4,10 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import './detail_spaces/space_chart.dart';
+import './detail_spaces/space_chart.dart' as detail_chart;
 import 'main.dart';
 
 Setting nowSetting;
-bool detail_isEmptyChart = true;
 
 List<FlSpot> detail_pm10Spot = [];
 List<FlSpot> detail_pm25Spot = [];
@@ -211,7 +210,8 @@ class _DetailPageState extends State<DetailPage> {
             Container(
               height: 300,
               color: Colors.white,
-              child: space_pmChart(detail_pm10Spot, detail_pm25Spot),
+              child:
+                  detail_chart.space_pmChart(detail_pm10Spot, detail_pm25Spot),
             ),
             SizedBox(height: 13),
           ],
@@ -272,10 +272,12 @@ class _DetailPageState extends State<DetailPage> {
                     minNumber: 1,
                     maxNumber: 60,
                     selectedNumber: nowSetting.freq,
-                    onChanged: (value) => setState(() {
-                      nowSetting.freq = value;
-                      isChanged = true;
-                    }),
+                    onChanged: (value) => setState(
+                      () {
+                        nowSetting.freq = value;
+                        isChanged = true;
+                      },
+                    ),
                   );
                 },
               ),
@@ -333,7 +335,7 @@ class _DetailPageState extends State<DetailPage> {
 
   // 디바이스 Chart 데이터 HTTP GET
   LoadChart(device_id, date, token) async {
-    // List<double> pmHour = List<double>();
+    List<double> pmHour = List<double>();
     List<double> pm10value = List<double>();
     List<double> pm25value = List<double>();
 
@@ -345,29 +347,26 @@ class _DetailPageState extends State<DetailPage> {
       List jsonList = jsonDecode(response.body);
       if (jsonList.isEmpty) {
         setState(() {
-          detail_isEmptyChart = true;
+          detail_pm10Spot.clear();
+          detail_pm25Spot.clear();
         });
       } else {
         // for 돌려서 리스트로 변환
         for (var i in jsonList) {
-          // pmHour.add(i['hour'].toDouble());
-          pm10value.add(i['avgpm10']);
-          pm25value.add(i['avgpm25']);
+          pmHour.add(i['hour'].toDouble());
+          pm10value.add(i['avgpm10'].roundToDouble());
+          pm25value.add(i['avgpm25'].roundToDouble());
         }
         // 리스트를 FlSpot으로 변환
         setState(
           () {
-            detail_isEmptyChart = false;
-            detail_pm10Spot = pm10value.asMap().entries.map((e) {
-              return FlSpot(e.key.toDouble(), e.value);
-            }).toList();
-            detail_pm25Spot = pm25value.asMap().entries.map((e) {
-              return FlSpot(e.key.toDouble(), e.value);
-            }).toList();
-            // for (int i; i < pmHour.length; i++) {
-            //   detail_pm10Spot.add(FlSpot(pmHour[i], pm10value[i]));
-            //   detail_pm25Spot.add(FlSpot(pmHour[i], pm25value[i]));
-            // }
+            detail_pm10Spot.clear();
+            detail_pm25Spot.clear();
+
+            for (int i = 0; i < pmHour.length; i++) {
+              detail_pm10Spot.add(FlSpot(pmHour[i], pm10value[i]));
+              detail_pm25Spot.add(FlSpot(pmHour[i], pm25value[i]));
+            }
           },
         );
       }
