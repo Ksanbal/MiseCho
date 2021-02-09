@@ -94,23 +94,55 @@ class _NotificationPageState extends State<NotificationPage> {
 
 // 리스트 타일 생성 위젯
   Widget _buildItemWidget(Item item) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      elevation: 5,
-      child: ListTile(
-        leading: Text(item.date),
-        title: Text(item.name),
-        subtitle: Text(item.content),
-        onTap: () {
-          final device = Device(widget.user.token, item.dId);
-          Navigator.push(
-            context,
-            PageTransition(
-              child: DetailPage(device: device),
-              type: PageTransitionType.bottomToTop,
+    return Dismissible(
+      key: Key("${item.id}"),
+      background: Card(
+        color: Colors.lightBlue[200],
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Icon(
+              Icons.delete,
+              color: Colors.white,
+              size: 40,
             ),
-          );
-        },
+            Icon(
+              Icons.delete,
+              color: Colors.white,
+              size: 40,
+            ),
+          ],
+        ),
+      ),
+      onDismissed: (direction) {
+        setState(() {
+          deleteNotice(item.id, widget.user.token);
+          getList = LoadNoti(widget.user.token);
+        });
+        Scaffold.of(context).showSnackBar(
+          SnackBar(
+            content: Text('$item dismissed'),
+          ),
+        );
+      },
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        elevation: 3,
+        child: ListTile(
+          leading: Text(item.date),
+          title: Text(item.name),
+          subtitle: Text(item.content),
+          onTap: () {
+            final device = Device(widget.user.token, item.dId);
+            Navigator.push(
+              context,
+              PageTransition(
+                child: DetailPage(device: device),
+                type: PageTransitionType.bottomToTop,
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -127,6 +159,15 @@ Future<List<Item>> LoadNoti(token) async {
   } else {
     throw Exception('Faild to load Get');
   }
+}
+
+// 알림 객체 삭제 HTTP DELETE
+Future<http.Response> deleteNotice(int id, token) async {
+  final http.Response response = await http.delete(
+    '$apiUrl/api/app/notice_delete/$id/',
+    headers: <String, String>{'Authorization': 'Token $token'},
+  );
+  return response;
 }
 
 // 알림 리스트 객체
