@@ -79,10 +79,11 @@ class _Login2State extends State<Login2> {
             content: Text(utf8.decode(response.bodyBytes)),
             actions: <Widget>[
               FlatButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text("Close"))
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("Close"),
+              )
             ],
           );
         },
@@ -161,8 +162,6 @@ class _Login2State extends State<Login2> {
                 borderRadius: BorderRadius.circular(5.0)),
             onPressed: () {
               signIn(id_Controller.text, pw_Controller.text);
-              print('id = ' + id_Controller.text);
-              print('pw = ' + pw_Controller.text);
             },
           ),
         ),
