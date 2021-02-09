@@ -1,92 +1,119 @@
 import 'package:flutter/material.dart';
 import 'package:scrolling_page_indicator/scrolling_page_indicator.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../main.dart';
 
-bool isEmptyChart = true;
-bool showpm10 = true;
-
-List<FlSpot> pm10Spot = [];
-List<FlSpot> pm25Spot = [];
+List<FlSpot> _pm10Spot = [];
+List<FlSpot> _pm25Spot = [];
+bool _isEmptyChart;
 
 space_pmChart(pm10, pm2p5) {
   final pmchart_controller = new PageController();
-  pm10Spot = pm10;
-  pm25Spot = pm2p5;
+  _pm10Spot = pm10;
+  _pm25Spot = pm2p5;
+
+  _isEmptyChart = (_pm10Spot.isNotEmpty) ? false : true;
 
   List<Widget> pm_items = [
-    Container(
-      child: AspectRatio(
-        aspectRatio: 1.23,
-        child: Container(
-          decoration: const BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(20)),
+    Column(
+      children: [
+        Text(
+          "Mise",
+          style: TextStyle(
             color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
-          child: Stack(
-            children: <Widget>[
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+        ),
+        Expanded(
+          child: AspectRatio(
+            // aspectRatio: 1.23,
+            aspectRatio: 2.0,
+            child: Container(
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(20)),
+                color: Colors.white,
+              ),
+              child: Stack(
                 children: <Widget>[
-                  const SizedBox(
-                    height: 37,
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 16.0, left: 6.0),
-                      child: LineChart(
-                        PM10Data(),
-                        swapAnimationDuration:
-                            const Duration(milliseconds: 250),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      const SizedBox(
+                        height: 37,
                       ),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 10,
+                      Expanded(
+                        child: Padding(
+                          padding:
+                              const EdgeInsets.only(right: 16.0, left: 6.0),
+                          child: LineChart(
+                            PM10Data(),
+                            swapAnimationDuration:
+                                const Duration(milliseconds: 250),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
+            ),
           ),
         ),
-      ),
+      ],
     ),
-    Container(
-      child: AspectRatio(
-        aspectRatio: 1.23,
-        child: Container(
-          decoration: const BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(20)),
+    Column(
+      children: [
+        Text(
+          "ChoMise",
+          style: TextStyle(
             color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
-          child: Stack(
-            children: <Widget>[
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+        ),
+        Expanded(
+          child: AspectRatio(
+            // aspectRatio: 1.23,
+            aspectRatio: 2.0,
+            child: Container(
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(20)),
+                color: Colors.white,
+              ),
+              child: Stack(
                 children: <Widget>[
-                  const SizedBox(
-                    height: 37,
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 16.0, left: 6.0),
-                      child: LineChart(
-                        PM25Data(),
-                        swapAnimationDuration:
-                            const Duration(milliseconds: 250),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      const SizedBox(
+                        height: 37,
                       ),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 10,
+                      Expanded(
+                        child: Padding(
+                          padding:
+                              const EdgeInsets.only(right: 16.0, left: 6.0),
+                          child: LineChart(
+                            PM25Data(),
+                            swapAnimationDuration:
+                                const Duration(milliseconds: 250),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
+            ),
           ),
         ),
-      ),
-    ),
+      ],
+    )
   ];
 
   return Row(
@@ -140,7 +167,7 @@ LineChartData PM10Data() {
           margin: 10,
           getTitles: (value) {
             switch (value.toInt()) {
-              case 1:
+              case 0:
                 return '0';
               case 6:
                 return '3';
@@ -212,11 +239,11 @@ LineChartData PM10Data() {
           ),
         ),
       ),
-      minX: 1,
+      minX: 0,
       maxX: 48,
       maxY: 160,
       minY: 0,
-      lineBarsData: isEmptyChart ? EmptyLinesBarData() : linesBarData1());
+      lineBarsData: _isEmptyChart ? EmptyLinesBarData() : linesBarData1());
 }
 
 LineChartData PM25Data() {
@@ -239,7 +266,7 @@ LineChartData PM25Data() {
           margin: 10,
           getTitles: (value) {
             switch (value.toInt()) {
-              case 1:
+              case 0:
                 return '0';
               case 6:
                 return '3';
@@ -312,10 +339,10 @@ LineChartData PM25Data() {
         ),
       ),
       minX: 0,
-      maxX: 24,
+      maxX: 48,
       maxY: 80,
       minY: 0,
-      lineBarsData: isEmptyChart ? EmptyLinesBarData() : linesBarData2());
+      lineBarsData: _isEmptyChart ? EmptyLinesBarData() : linesBarData2());
 }
 
 // 빈 차트 데이터
@@ -345,7 +372,7 @@ List<LineChartBarData> EmptyLinesBarData() {
 // 실제 차트 데이터
 List<LineChartBarData> linesBarData1() {
   final LineChartBarData lineChartBarData1 = LineChartBarData(
-    spots: pm10Spot,
+    spots: _pm10Spot,
     isCurved: true,
     colors: [
       const Color(0xffffce1f),
@@ -365,7 +392,7 @@ List<LineChartBarData> linesBarData1() {
 
 List<LineChartBarData> linesBarData2() {
   final LineChartBarData lineChartBarData2 = LineChartBarData(
-    spots: pm25Spot,
+    spots: _pm25Spot,
     isCurved: true,
     colors: [
       const Color(0xffaa4cfc),
