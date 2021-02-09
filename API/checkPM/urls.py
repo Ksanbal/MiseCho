@@ -16,6 +16,7 @@ urlpatterns = [
 
     # Notice Page
     path('app/notice/', vi.notifications),
+    path('app/notice_delete/<int:notice_num>/', vi.notifications_delete),
 
     # Device setting Page
     path('app/device/chart/<int:device_id>/<str:date>/', vi.device_setting_chart),

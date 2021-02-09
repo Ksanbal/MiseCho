@@ -148,6 +148,20 @@ def notifications(request):
     return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
+# Notifications Delete
+@api_view(['DELETE'])
+def notifications_delete(request, notice_num):
+    # 접속한 유저 확인
+    if request.user.username != 'AnonymousUser':
+        # 알림 삭제
+        try:
+            mo.Notices.objects.get(id=notice_num).delete()
+            return Response(status=status.HTTP_200_OK)
+        except Exception as ex:
+            return Response(ex, status=status.HTTP_400_BAD_REQUEST)
+    return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
 # 요청한 사용자가 디바이스에 권한이 있는지 확인
 def check_device_auth(user, device_id):
     if user.username != 'AnonymousUser':
