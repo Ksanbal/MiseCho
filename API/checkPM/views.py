@@ -67,7 +67,7 @@ def main_chart(request, date):
         # 전체 평균 data
         myAVG = mo.TotalAvgDatas.objects.filter(
             date=date, c_id=mo.Profile.objects.get(user_id=now_user).c_id
-        )
+        ).order_by('id')
         avg_serializer = se.Total_AvgData_Serializer(myAVG, many=True)
         return Response(avg_serializer.data, status=status.HTTP_200_OK)
     else:
@@ -151,7 +151,7 @@ def device_setting_chart(request, device_id, date):
     if check_device_auth(request.user, device_id):
         # 해당 디바이스 선택날짜 시간대별 데이터
         date = [int(i) for i in date.split('-')]
-        avgdatas = mo.AvgDatas.objects.filter(date=datetime(date[0], date[1], date[2]), d_id=device)
+        avgdatas = mo.AvgDatas.objects.filter(date=datetime(date[0], date[1], date[2]), d_id=device).order_by('id')
         avgdata_serializer = se.AvgData_Serializer(avgdatas, many=True)
 
         return Response(avgdata_serializer.data, status=status.HTTP_200_OK)
