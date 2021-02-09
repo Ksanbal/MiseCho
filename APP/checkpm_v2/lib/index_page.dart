@@ -6,20 +6,29 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_material_pickers/flutter_material_pickers.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:heatmap_calendar/time_utils.dart';
 
 import 'main.dart';
 import 'notice_page.dart';
 import 'detail_page.dart';
 
-import './index_spaces/space_circleInfo.dart';
-import './index_spaces/space_heatmap.dart';
-import './index_spaces/space_chart.dart';
+import './index_spaces/space_circleInfo.dart' as index_circle;
+import './index_spaces/space_heatmap.dart' as index_heat;
+import './index_spaces/space_chart.dart' as index_chart;
 
-bool isEmptyChart = true;
 bool isEmptyDevice = false;
 
-List<FlSpot> pm10Spot = [];
-List<FlSpot> pm25Spot = [];
+// Line Chart 데이터
+List<FlSpot> index_pm10Spot = [];
+List<FlSpot> index_pm25Spot = [];
+
+// Circle Chart 데이터
+double index_current_pm10;
+double index_current_pm2p5;
+
+// HeatMap Chart 데이터
+Map<DateTime, int> index_heat_pm10;
+Map<DateTime, int> index_heat_pm2p5;
 
 class IndexPage extends StatefulWidget {
   final User user;
@@ -41,6 +50,7 @@ class _IndexPageState extends State<IndexPage> {
       '${nowDate.year}-${nowDate.month}-${nowDate.day}',
       widget.user.token,
     );
+    LoadHeatmapChart(widget.user.token);
     getList = LoadDevice(getDate, widget.user.token);
   }
 
@@ -59,7 +69,6 @@ class _IndexPageState extends State<IndexPage> {
       ),
     );
   }
-// HTTP
 
 // Widget
   space_AppBar() {
@@ -99,15 +108,16 @@ class _IndexPageState extends State<IndexPage> {
     List<Widget> items = [
       Container(
         color: Colors.lightBlue[400],
-        child: space_circle(),
+        child:
+            index_circle.space_circle(index_current_pm10, index_current_pm2p5),
       ),
       Container(
         color: Colors.lightBlue[400],
-        child: space_heatmap(),
+        child: index_heat.space_heatmap(index_heat_pm10, index_heat_pm2p5),
       ),
       Container(
         color: Colors.lightBlue[400],
-        child: space_pmChart(pm10Spot, pm25Spot),
+        child: index_chart.space_pmChart(index_pm10Spot, index_pm25Spot),
       ),
     ];
 
@@ -126,7 +136,7 @@ class _IndexPageState extends State<IndexPage> {
 
               // Chart PageView
               Container(
-                height: 200,
+                height: 230,
                 child: PageView(
                   controller: pageView_controller,
                   children: items,
@@ -279,7 +289,7 @@ class _IndexPageState extends State<IndexPage> {
 
   // 메인페이지 Chart 데이터 HTTP GET
   LoadChart(date, token) async {
-    // List<double> pmHour = List<double>();
+    List<double> pmHour = List<double>();
     List<double> pm10value = List<double>();
     List<double> pm25value = List<double>();
 
@@ -290,37 +300,64 @@ class _IndexPageState extends State<IndexPage> {
       List jsonList = jsonDecode(response.body);
       if (jsonList.isEmpty) {
         setState(() {
-          isEmptyChart = true;
+          index_pm10Spot.clear();
+          index_pm25Spot.clear();
         });
       } else {
         // for 돌려서 리스트로 변환
         for (var i in jsonList) {
-          // pmHour.add(i['hour'].toDouble());
+          pmHour.add(i['hour'].toDouble());
           pm10value.add(i['avgpm10']);
           pm25value.add(i['avgpm25']);
         }
         // 리스트를 FlSpot으로 변환
         setState(
           () {
-            isEmptyChart = false;
-            pm10Spot = pm10value.asMap().entries.map((e) {
-              return FlSpot(e.key.toDouble(), e.value);
-            }).toList();
-            pm25Spot = pm25value.asMap().entries.map((e) {
-              return FlSpot(e.key.toDouble(), e.value);
-            }).toList();
-            // for (int i; i < pmHour.length; i++) {
-            //   pm10Spot.add(FlSpot(pmHour[i], pm10value[i]));
-            //   pm25Spot.add(FlSpot(pmHour[i], pm25value[i]));
-            // }
+            index_pm10Spot.clear();
+            index_pm25Spot.clear();
 
-            print(pm10Spot);
-            print(pm25Spot);
+            for (int i = 0; i < pmHour.length; i++) {
+              index_pm10Spot.add(FlSpot(pmHour[i], pm10value[i]));
+              index_pm25Spot.add(FlSpot(pmHour[i], pm25value[i]));
+            }
+
+            index_current_pm10 = pm10value[pm10value.length - 1];
+            index_current_pm2p5 = pm25value[pm10value.length - 1];
           },
         );
       }
     } else {
       throw Exception('Faild to load Get');
+    }
+  }
+
+  // HeatMap Chart 데이터 HTTP GET
+  LoadHeatmapChart(token) async {
+    List<DateTime> pmDateValue = List<DateTime>();
+    List<int> pm10value = List<int>();
+    List<int> pm25value = List<int>();
+    var response = await http.get('$apiUrl/api/app/main/heatmap/',
+        headers: <String, String>{'Authorization': "Token $token"});
+
+    if (response.statusCode == 200) {
+      List jsonList = jsonDecode(response.body);
+      if (jsonList.isEmpty) {
+        setState(() {
+          index_heat_pm10 = {};
+          index_heat_pm2p5 = {};
+        });
+      } else {
+        for (var i in jsonList) {
+          pmDateValue.add(TimeUtils.removeTime(DateTime.parse(i['datetime'])));
+          pm10value.add(i['avgpm10'].toInt());
+          pm25value.add(i['avgpm25'].toInt());
+        }
+
+        index_heat_pm10 = Map.fromIterables(pmDateValue, pm10value);
+        index_heat_pm2p5 = Map.fromIterables(pmDateValue, pm25value);
+      }
+    } else {
+      throw Exception('Faild to load Get - Heatmap');
     }
   }
 }
