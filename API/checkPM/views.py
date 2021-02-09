@@ -46,11 +46,19 @@ def signin(request):
         serializer = se.SignIn_Serializer(data=request.data)
         if serializer.is_valid():
             user = serializer.validated_data
-            token = Token.objects.create(user=user)
+
+            # 이미 토큰이 있는 경우
+            try:
+                token = Token.objects.create(user=user)
+            except Exception as ex:
+                Token.objects.get(user=user).delete()
+                token = Token.objects.create(user=user)
+
             return Response(
                 {
                     "token": token.key
                 }
+                , status=status.HTTP_200_OK
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
