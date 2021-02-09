@@ -158,7 +158,7 @@ def notifications_delete(request, notice_num):
             mo.Notices.objects.get(id=notice_num).delete()
             return Response(status=status.HTTP_200_OK)
         except Exception as ex:
-            return Response(ex, status=status.HTTP_400_BAD_REQUEST)
+            return Response(f'{ex}', status=status.HTTP_400_BAD_REQUEST)
     return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
