@@ -58,3 +58,10 @@ class TotalAvgDatas(models.Model):
     avgpm10 = models.FloatField()
     avgpm25 = models.FloatField()
     c_id = models.ForeignKey(Companys, on_delete=models.CASCADE, db_column='c_id')
+
+
+class DaysAvgDatas(models.Model):
+    datetime = models.DateTimeField(auto_now_add=True)
+    avgpm10 = models.FloatField()
+    avgpm25 = models.FloatField()
+    c_id = models.ForeignKey(Companys, on_delete=models.CASCADE, db_column='c_id')

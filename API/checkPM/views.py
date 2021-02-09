@@ -74,6 +74,19 @@ def main_chart(request, date):
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
+@api_view(['GET'])
+def main_heatChart(request):
+    if request.user.username != 'AnonymousUser':
+        now_user = request.user
+        now_company = mo.Profile.objects.get(user_id=now_user).c_id
+
+        myAVG = mo.DaysAvgDatas.objects.filter(c_id=now_company).order_by('-id')
+        avg_serializer = se.Days_AvgData_Serializer(myAVG, many=True)
+        return Response(avg_serializer.data, status=status.HTTP_200_OK)
+    else:
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
 # Device List
 @api_view(['GET'])
 def main_device(request, date):
@@ -244,3 +257,10 @@ def datapost(request):
             serializer.save()
             return Response(serializer.errors, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# Test용
+@api_view(['GET'])
+def test(request):
+    cron.makeAvgAtDay()
+    return Response(status=status.HTTP_200_OK)

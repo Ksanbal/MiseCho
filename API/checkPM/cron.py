@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from django.db.models import Avg
 
 
-def cron_job():
+def makeAvgAt30():
     now_time = datetime.now()
     target_time = now_time - timedelta(hours=1)
     now_hour = now_time.hour
@@ -79,3 +79,23 @@ def cron_job():
 
         except Exception as ex:
             print(f"{datetime.now()} - 00 Get Error - {ex}")
+
+
+def makeAvgAtDay():
+    now_time = datetime.now()
+    try:
+        for i in mo.Companys.objects.all():
+            day_avg_pm10 = mo.TotalAvgDatas.objects.filter(
+                c_id=i,
+                date=now_time,
+            ).aggregate(Avg('avgpm10'))['avgpm10__avg']
+
+            day_avg_pm2p5 = mo.TotalAvgDatas.objects.filter(
+                c_id=i,
+                date=now_time,
+            ).aggregate(Avg('avgpm25'))['avgpm25__avg']
+
+            mo.DaysAvgDatas.objects.create(avgpm10=day_avg_pm10, avgpm25=day_avg_pm2p5, c_id=i)
+
+    except Exception as ex:
+        print(f"{datetime.now()} - Day Get Error - {ex}")

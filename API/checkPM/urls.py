@@ -11,6 +11,7 @@ urlpatterns = [
 
     # Main Page
     path('app/main/chart/<str:date>/', vi.main_chart),
+    path('app/main/heatmap/', vi.main_heatChart),
     path('app/main/device/<str:date>/', vi.main_device),
 
     # Notice Page
@@ -24,5 +25,8 @@ urlpatterns = [
     # Device Data Post
     path('device/data/<int:device_id>/', vi.check_freq),
     path('device/data/', vi.datapost),
+
+    # Test
+    path('test/', vi.test),
 ]
 

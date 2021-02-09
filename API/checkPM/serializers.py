@@ -56,6 +56,12 @@ class Total_AvgData_Serializer(serializers.ModelSerializer):
         )
 
 
+class Days_AvgData_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = mo.DaysAvgDatas
+        fields = ('datetime', 'avgpm10', 'avgpm25')
+
+
 # Notice Page
 class Notification_Serializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
