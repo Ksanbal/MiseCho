@@ -39,6 +39,8 @@ class IndexPage extends StatefulWidget {
 }
 
 class _IndexPageState extends State<IndexPage> {
+  bool isLoading = true;
+
   final pageView_controller = new PageController();
   Future<List<DeviceItem>> getList;
 
@@ -59,14 +61,17 @@ class _IndexPageState extends State<IndexPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: space_AppBar(),
-      body: Column(
-        children: <Widget>[
-          // Chart
-          space_Chart(),
-          // device grid
-          space_Devices(),
-        ],
-      ),
+      body: isLoading
+          ? Container(
+              child: CircularProgressIndicator(backgroundColor: Colors.grey))
+          : Column(
+              children: <Widget>[
+                // Chart
+                space_Chart(),
+                // device grid
+                space_Devices(),
+              ],
+            ),
     );
   }
 
@@ -190,12 +195,14 @@ class _IndexPageState extends State<IndexPage> {
               selectedDate: nowDate,
               onChanged: (value) => setState(
                 () {
+                  isLoading = true;
                   nowDate = value;
                   LoadChart('${nowDate.year}-${nowDate.month}-${nowDate.day}',
                       widget.user.token);
                   getList = LoadDevice(
                       '${nowDate.year}-${nowDate.month}-${nowDate.day}',
                       widget.user.token);
+                  isLoading = false;
                 },
               ),
             );
@@ -347,39 +354,44 @@ class _IndexPageState extends State<IndexPage> {
           index_heat_pm2p5 = {};
         });
       } else {
-        for (var i in jsonList) {
-          pmDateValue.add(TimeUtils.removeTime(DateTime.parse(i['datetime'])));
-          pm10value.add(i['avgpm10'].toInt());
-          pm25value.add(i['avgpm25'].toInt());
-        }
+        setState(() {
+          for (var i in jsonList) {
+            pmDateValue
+                .add(TimeUtils.removeTime(DateTime.parse(i['datetime'])));
+            pm10value.add(i['avgpm10'].toInt());
+            pm25value.add(i['avgpm25'].toInt());
+          }
 
-        index_heat_pm10 = Map.fromIterables(pmDateValue, pm10value);
-        index_heat_pm2p5 = Map.fromIterables(pmDateValue, pm25value);
+          index_heat_pm10 = Map.fromIterables(pmDateValue, pm10value);
+          index_heat_pm2p5 = Map.fromIterables(pmDateValue, pm25value);
+        });
       }
     } else {
       throw Exception('Faild to load Get - Heatmap');
     }
   }
-}
 
-// 메인페이지 디바이스 리스트 HTTP GET
-Future<List<DeviceItem>> LoadDevice(date, token) async {
-  var response = await http.get('$apiUrl/api/app/main/device/$date/',
-      headers: <String, String>{'Authorization': "Token $token"});
+  // 메인페이지 디바이스 리스트 HTTP GET
+  Future<List<DeviceItem>> LoadDevice(date, token) async {
+    var response = await http.get('$apiUrl/api/app/main/device/$date/',
+        headers: <String, String>{'Authorization': "Token $token"});
 
-  if (response.statusCode == 200) {
-    List jsonList = jsonDecode(utf8.decode(response.bodyBytes));
-    if (jsonList.isEmpty) {
-      isEmptyDevice = true;
+    if (response.statusCode == 200) {
+      List jsonList = jsonDecode(utf8.decode(response.bodyBytes));
+      if (jsonList.isEmpty) {
+        isEmptyDevice = true;
+      } else {
+        isEmptyDevice = false;
+        var getList =
+            jsonList.map((element) => DeviceItem.fromJson(element)).toList();
+        setState(() {
+          isLoading = false;
+        });
+        return getList;
+      }
     } else {
-      isEmptyDevice = false;
-      var getList =
-          jsonList.map((element) => DeviceItem.fromJson(element)).toList();
-
-      return getList;
+      throw Exception('Faild to load Get');
     }
-  } else {
-    throw Exception('Faild to load Get');
   }
 }
 

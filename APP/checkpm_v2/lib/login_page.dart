@@ -113,7 +113,7 @@ class _Login2State extends State<Login2> {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              "Login to your Account",
+              "로그인 진행하기",
               textAlign: TextAlign.left,
               style: TextStyle(
                 fontSize: 18,
@@ -127,7 +127,7 @@ class _Login2State extends State<Login2> {
           TextField(
             controller: id_Controller,
             decoration: InputDecoration(
-              labelText: 'ID',
+              labelText: '아이디',
             ),
           ),
           SizedBox(
@@ -138,7 +138,7 @@ class _Login2State extends State<Login2> {
             controller: pw_Controller,
             obscureText: true,
             decoration: InputDecoration(
-              labelText: 'Password',
+              labelText: '비밀번호',
             ),
           ),
         ],
@@ -154,7 +154,7 @@ class _Login2State extends State<Login2> {
           height: 50.0,
           child: RaisedButton(
             child: Text(
-              'Sign in',
+              '로그인',
               style: TextStyle(fontSize: 20, color: Colors.white),
             ),
             color: Colors.lightBlue[400],
@@ -173,7 +173,7 @@ class _Login2State extends State<Login2> {
           height: 50,
           child: RaisedButton(
             child: Text(
-              'Sign up',
+              '회원가입',
               style: TextStyle(fontSize: 20, color: Colors.lightBlue),
             ),
             color: Colors.white,

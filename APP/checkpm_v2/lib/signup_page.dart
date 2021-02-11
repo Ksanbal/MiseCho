@@ -69,16 +69,11 @@ class _SignupPageState extends State<SignupPage> {
     var response = await http.post('$apiUrl/api/app/auth/signup/', body: data);
     if (response.statusCode == 200) {
       jsonData = json.decode(response.body);
-      print('회원가입');
       setState(() {
         final user = User(jsonData['token']);
-        // Navigator.pushReplacement(
-        //   context,
-        //   MaterialPageRoute(builder: (context) => IndexPage(user: user)),
-        // );
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => IndexPage()),
+          MaterialPageRoute(builder: (context) => IndexPage(user: user)),
         );
       });
     } else {
@@ -135,7 +130,7 @@ class _SignupPageState extends State<SignupPage> {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              "Create your Account",
+              "계정을 새로 만드세요!",
               textAlign: TextAlign.left,
               style: TextStyle(
                 fontSize: 18,
@@ -149,7 +144,7 @@ class _SignupPageState extends State<SignupPage> {
           TextField(
             controller: id_Controller,
             decoration: InputDecoration(
-              labelText: 'ID',
+              labelText: '아이디',
             ),
           ),
           // Password TextField
@@ -157,7 +152,7 @@ class _SignupPageState extends State<SignupPage> {
             controller: pw_Controller,
             obscureText: true,
             decoration: InputDecoration(
-              labelText: 'Password',
+              labelText: '비밀번호',
             ),
           ),
           // Name TextField
@@ -165,7 +160,7 @@ class _SignupPageState extends State<SignupPage> {
             controller: name_Controller,
             obscureText: true,
             decoration: InputDecoration(
-              labelText: 'Name',
+              labelText: '이름',
             ),
           ),
           // Company ID TextField
@@ -173,7 +168,7 @@ class _SignupPageState extends State<SignupPage> {
             controller: cId_Controller,
             obscureText: true,
             decoration: InputDecoration(
-              labelText: 'Company ID',
+              labelText: '회사 아이디',
             ),
           ),
         ],
@@ -189,7 +184,7 @@ class _SignupPageState extends State<SignupPage> {
           height: 50.0,
           child: RaisedButton(
             child: Text(
-              'Sign up',
+              '등록하기',
               style: TextStyle(fontSize: 20, color: Colors.white),
             ),
             color: Colors.lightBlue[400],

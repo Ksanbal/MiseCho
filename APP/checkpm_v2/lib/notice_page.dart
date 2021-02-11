@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:io';
 
 import 'main.dart';
 import 'detail_page.dart';
@@ -15,6 +16,8 @@ class NotificationPage extends StatefulWidget {
 }
 
 class _NotificationPageState extends State<NotificationPage> {
+  bool isLoading = true;
+
   Future<List<Item>> getList;
 
   @override
@@ -33,7 +36,14 @@ class _NotificationPageState extends State<NotificationPage> {
         child: Column(
           children: <Widget>[
             // AppBar
-            space_ListView(),
+            isLoading
+                ? Expanded(
+                    child: Center(
+                      child: CircularProgressIndicator(
+                          backgroundColor: Colors.grey),
+                    ),
+                  )
+                : space_ListView(),
           ],
         ),
       ),
@@ -52,7 +62,7 @@ class _NotificationPageState extends State<NotificationPage> {
         },
       ),
       title: Text(
-        "Notice",
+        "알림 ",
         style: TextStyle(
           fontSize: 20,
           color: Colors.lightBlue[400],
@@ -146,18 +156,21 @@ class _NotificationPageState extends State<NotificationPage> {
       ),
     );
   }
-}
 
-// 알림 리스트 페이지 HTTP GET
-Future<List<Item>> LoadNoti(token) async {
-  var response = await http.get('$apiUrl/api/app/notice/',
-      headers: <String, String>{'Authorization': "Token $token"});
-  if (response.statusCode == 200) {
-    List jsonList = jsonDecode(utf8.decode(response.bodyBytes));
-    var getList = jsonList.map((element) => Item.fromJson(element)).toList();
-    return getList;
-  } else {
-    throw Exception('Faild to load Get');
+  // 알림 리스트 페이지 HTTP GET
+  Future<List<Item>> LoadNoti(token) async {
+    var response = await http.get('$apiUrl/api/app/notice/',
+        headers: <String, String>{'Authorization': "Token $token"});
+    if (response.statusCode == 200) {
+      List jsonList = jsonDecode(utf8.decode(response.bodyBytes));
+      var getList = jsonList.map((element) => Item.fromJson(element)).toList();
+      setState(() {
+        isLoading = false;
+      });
+      return getList;
+    } else {
+      throw Exception('Faild to load Get');
+    }
   }
 }
 

@@ -17,7 +17,7 @@ space_pmChart(pm10, pm2p5) {
     Column(
       children: [
         Text(
-          "Mise",
+          "미세",
           style: TextStyle(
             color: Colors.white,
             fontSize: 20,
@@ -67,7 +67,7 @@ space_pmChart(pm10, pm2p5) {
     Column(
       children: [
         Text(
-          "ChoMise",
+          "초미세",
           style: TextStyle(
             color: Colors.white,
             fontSize: 20,

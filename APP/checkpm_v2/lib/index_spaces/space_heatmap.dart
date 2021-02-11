@@ -10,7 +10,7 @@ space_heatmap(_pm10, _pm2p5) {
     Column(
       children: [
         Text(
-          'Mise',
+          '미세',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -60,7 +60,7 @@ space_heatmap(_pm10, _pm2p5) {
     Column(
       children: [
         Text(
-          'ChoMise',
+          '초미세',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,

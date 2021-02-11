@@ -21,6 +21,8 @@ class DetailPage extends StatefulWidget {
 }
 
 class _DetailPageState extends State<DetailPage> {
+  bool isLoading = true;
+
   // 설정 변경 확인
   bool isChanged = false;
 
@@ -44,15 +46,19 @@ class _DetailPageState extends State<DetailPage> {
       appBar: space_AppBar(context),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: <Widget>[
-            // Chart
-            space_Chart(),
-            // Setting
-            space_Setting(),
-            SizedBox(height: 10),
-          ],
-        ),
+        child: isLoading
+            ? Container(
+                child: CircularProgressIndicator(backgroundColor: Colors.grey),
+              )
+            : Column(
+                children: <Widget>[
+                  // Chart
+                  space_Chart(),
+                  // Setting
+                  space_Setting(),
+                  SizedBox(height: 10),
+                ],
+              ),
       ),
     );
   }
@@ -144,7 +150,7 @@ class _DetailPageState extends State<DetailPage> {
         },
       ),
       title: Text(
-        "Device 1",
+        nowSetting.name,
         style: TextStyle(
           fontSize: 20,
           color: Colors.white,
@@ -374,6 +380,23 @@ class _DetailPageState extends State<DetailPage> {
       throw Exception('Faild to load Get');
     }
   }
+
+  // 디바이스 세팅 GET
+  LoadSetting(device_id, token) async {
+    var response = await http.get('$apiUrl/api/app/device/value/$device_id/',
+        headers: <String, String>{'Authorization': "Token $token"});
+
+    var jsonData = json.decode(utf8.decode(response.bodyBytes));
+
+    if (response.statusCode == 200) {
+      nowSetting = Setting.fromJson(jsonData);
+      setState(() {
+        isLoading = false;
+      });
+    } else {
+      throw Exception('Faild to load Get');
+    }
+  }
 }
 
 text_color(value) {
@@ -397,20 +420,6 @@ text_color(value) {
     return_color = Colors.black;
   }
   return return_color;
-}
-
-// 디바이스 세팅 GET
-LoadSetting(device_id, token) async {
-  var response = await http.get('$apiUrl/api/app/device/value/$device_id/',
-      headers: <String, String>{'Authorization': "Token $token"});
-
-  var jsonData = json.decode(utf8.decode(response.bodyBytes));
-
-  if (response.statusCode == 200) {
-    nowSetting = Setting.fromJson(jsonData);
-  } else {
-    throw Exception('Faild to load Get');
-  }
 }
 
 class Setting {

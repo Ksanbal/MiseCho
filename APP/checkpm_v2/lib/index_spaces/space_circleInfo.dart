@@ -6,7 +6,7 @@ space_circle(double pm10, double pm2p5) {
   return Column(
     children: [
       Text(
-        'Now State',
+        '현재 상황',
         style: TextStyle(
           color: Colors.white,
           fontSize: 20,
@@ -30,7 +30,7 @@ space_circle(double pm10, double pm2p5) {
                 ),
                 children: [
                   Text(
-                    'Mise',
+                    '미세',
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -54,7 +54,7 @@ space_circle(double pm10, double pm2p5) {
                 ),
                 children: [
                   Text(
-                    'ChoMise',
+                    '초미세',
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,

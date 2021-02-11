@@ -21,7 +21,7 @@ space_pmChart(pm10, pm2p5) {
         Align(
           alignment: Alignment.center,
           child: Text(
-            "Mise",
+            "미세",
             style: TextStyle(
               color: Colors.lightBlue[400],
               fontSize: 20,
@@ -72,7 +72,7 @@ space_pmChart(pm10, pm2p5) {
         Align(
           alignment: Alignment.center,
           child: Text(
-            "ChoMise",
+            "초미세",
             style: TextStyle(
               color: Colors.lightBlue[400],
               fontSize: 20,
