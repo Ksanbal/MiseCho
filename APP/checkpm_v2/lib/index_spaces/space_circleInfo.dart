@@ -30,13 +30,21 @@ space_circle(double pm10, double pm2p5) {
                 ),
                 children: [
                   Text(
-                    '미세',
+                    getPMGrade('pm10', pm10.toInt()),
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
                     ),
-                  )
+                  ),
+                  Text(
+                    '미세',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -54,13 +62,21 @@ space_circle(double pm10, double pm2p5) {
                 ),
                 children: [
                   Text(
-                    '초미세',
+                    getPMGrade("pm2p5", pm2p5.toInt()),
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
                     ),
-                  )
+                  ),
+                  Text(
+                    '초미세',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -69,4 +85,46 @@ space_circle(double pm10, double pm2p5) {
       ),
     ],
   );
+}
+
+getPMGrade(String type, int value) {
+  String return_text;
+  if (type == 'pm10') {
+    if (value <= 15) {
+      return_text = "최고";
+    } else if (value <= 30) {
+      return_text = "좋음";
+    } else if (value <= 40) {
+      return_text = "양호";
+    } else if (value <= 50) {
+      return_text = "보통";
+    } else if (value <= 75) {
+      return_text = "나쁨";
+    } else if (value <= 100) {
+      return_text = "상당히 나쁨";
+    } else if (value <= 150) {
+      return_text = "매우 나쁨";
+    } else if (value > 150) {
+      return_text = "최악";
+    }
+  } else if (type == 'pm2p5') {
+    if (value <= 8) {
+      return_text = "최고";
+    } else if (value <= 15) {
+      return_text = "좋음";
+    } else if (value <= 20) {
+      return_text = "양호";
+    } else if (value <= 25) {
+      return_text = "보통";
+    } else if (value <= 37) {
+      return_text = "나쁨";
+    } else if (value <= 50) {
+      return_text = "상당히 나쁨";
+    } else if (value <= 75) {
+      return_text = "매우 나쁨";
+    } else if (value > 76) {
+      return_text = "최악";
+    }
+  }
+  return return_text;
 }
