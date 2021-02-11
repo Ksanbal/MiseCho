@@ -88,7 +88,7 @@ def main_heatChart(request):
         now_user = request.user
         now_company = mo.Profile.objects.get(user_id=now_user).c_id
 
-        myAVG = mo.DaysAvgDatas.objects.filter(c_id=now_company).order_by('-id')
+        myAVG = mo.DaysAvgDatas.objects.filter(c_id=now_company).order_by('-id')[:98]
         avg_serializer = se.Days_AvgData_Serializer(myAVG, many=True)
         return Response(avg_serializer.data, status=status.HTTP_200_OK)
     else:
@@ -267,7 +267,7 @@ def datapost(request):
                     pm25_now = n
 
             mo.Notices(
-                content=f'초미세먼지 {pm25}로 "{str_grade[pm25_now]}"입니다. 확인해주세요.',
+                content=f'초미세먼지가 {pm25}로 "{str_grade[pm25_now]}"입니다. 확인해주세요.',
                 d_id=device,
                 c_id=device.c_id
             ).save()
