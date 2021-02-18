@@ -15,6 +15,8 @@ class Login2 extends StatefulWidget {
 class _Login2State extends State<Login2> {
   final id_Controller = TextEditingController();
   final pw_Controller = TextEditingController();
+  // final id_Controller = TextEditingController(text: 'ksanbal_test');
+  // final pw_Controller = TextEditingController(text: '1021');
 
   @override
   void dispose() {
@@ -57,10 +59,8 @@ class _Login2State extends State<Login2> {
     };
     var jsonData = null;
     var response = await http.post('$apiUrl/api/app/auth/signin/', body: data);
-    print(response.body);
     if (response.statusCode == 200) {
       jsonData = json.decode(response.body);
-      print('로그인');
       setState(
         () {
           final user = User(jsonData['token']);
