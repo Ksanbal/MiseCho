@@ -132,7 +132,7 @@ def main_device(request, date):
 
 # Notifications List Page
 @api_view(['GET'])
-def notifications(request):
+def notifications(request, callNum):
     # 접속한 유저 확인
     if request.user.username != 'AnonymousUser':
         now_c_id = mo.Profile.objects.get(
@@ -140,7 +140,7 @@ def notifications(request):
         ).c_id
 
         # 회사의 id를 가진 모든 notification 반환
-        notices = mo.Notices.objects.filter(c_id=now_c_id).order_by('-date')
+        notices = mo.Notices.objects.filter(c_id=now_c_id).order_by('-date')[:callNum]
 
         if request.method == 'GET':
             serializer = se.Notification_Serializer(notices, many=True)
@@ -222,6 +222,21 @@ def device_setting_value(request, device_id):
     return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
+# Devices
+@api_view(['POST'])
+def add_device(request):
+    serializer = se.AddDevice_Serializer(data=request.data)
+    if serializer.is_valid():
+        user = serializer.save()
+        token = Token.objects.create(user=user)
+        return Response(
+            {
+                "token": token.key
+            }
+        )
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 @api_view(['GET'])
 def check_freq(request, device_id):
     return Response(mo.Devices.objects.get(id=device_id).freq, status=status.HTTP_200_OK)
@@ -272,13 +287,16 @@ def datapost(request):
                 c_id=device.c_id
             ).save()
 
-    if request.method == 'POST':
+    if check_device_auth(request.user, request.data['d_id']):
         serializer = se.DataPost_Serializer(data=request.data)
         if serializer.is_valid():
             check_grade(request.data['pm10'], request.data['pm25'], request.data['d_id'])
             serializer.save()
             return Response(serializer.errors, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
 
 
 # Test용

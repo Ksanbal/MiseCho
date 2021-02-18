@@ -15,7 +15,7 @@ urlpatterns = [
     path('app/main/device/<str:date>/', vi.main_device),
 
     # Notice Page
-    path('app/notice/', vi.notifications),
+    path('app/notice/<int:callNum>/', vi.notifications),
     path('app/notice_delete/<int:notice_num>/', vi.notifications_delete),
 
     # Device setting Page
@@ -24,6 +24,7 @@ urlpatterns = [
 
     # Device
     # Device Data Post
+    path('device/addDevice/', vi.add_device),
     path('device/data/<int:device_id>/', vi.check_freq),
     path('device/data/', vi.datapost),
 

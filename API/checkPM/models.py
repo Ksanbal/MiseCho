@@ -8,6 +8,7 @@ class Companys(models.Model):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    isdevice = models.BooleanField(default=False)
     c_id = models.ForeignKey(Companys, on_delete=models.CASCADE, db_column='c_id')
 
 

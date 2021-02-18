@@ -20,6 +20,7 @@ class SignUp_Serializer(serializers.Serializer):
         )
         profile = mo.Profile(
             user=user,
+            isdevice=False,
             c_id=mo.Companys.objects.get(id=validated_data["c_id"])
         )
 
@@ -85,6 +86,30 @@ class AvgData_Serializer(serializers.ModelSerializer):
     class Meta:
         model = mo.AvgDatas
         fields = ('hour', 'avgpm10', 'avgpm25')
+
+
+class AddDevice_Serializer(serializers.Serializer):
+    device_name = serializers.CharField()
+    c_id = serializers.IntegerField()
+
+    def create(self, validated_data):
+        user = mo.User.objects.create_user(
+            username=validated_data["device_name"],
+            password='device0000',
+            first_name=validated_data["device_name"],
+            last_name='null',
+            email='null'
+        )
+        profile = mo.Profile(
+            user=user,
+            isdevice=True,
+            c_id=mo.Companys.objects.get(id=validated_data["c_id"])
+        )
+
+        user.save()
+        profile.save()
+
+        return user
 
 
 # Device Data Post
