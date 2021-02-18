@@ -3,9 +3,6 @@ import 'package:page_transition/page_transition.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 
 import 'login_page.dart';
-import 'index_page.dart';
-import 'notice_page.dart';
-import 'detail_page.dart';
 
 void main() => runApp(MyApp());
 
@@ -18,8 +15,6 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.lightBlue,
       ),
       home: LoginPage(), // Login page로 연결
-      // home: DetailPage(),
-      // home: NotificationPage(),
     );
   }
 }
@@ -38,23 +33,14 @@ class LoginPage extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        SizedBox(width: 20.0, height: 100.0),
-        Text(
-          "Be",
-          style: TextStyle(
-            fontSize: 50.0,
-            color: Colors.white,
-          ),
-        ),
-        SizedBox(width: 15.0, height: 100.0),
         SizedBox(
           width: 200.0,
           height: 200.0,
           child: RotateAnimatedTextKit(
-            text: ["Clean", "Smart", "Easy"],
+            text: ["Call me", "MiseCho"],
             textStyle: TextStyle(
-              fontSize: 50.0,
-              fontFamily: "Horizion",
+              fontSize: 40.0,
+              fontFamily: "Pacifico",
               color: Colors.white,
             ),
             textAlign: TextAlign.start,
@@ -89,9 +75,8 @@ class Device {
   Device(this.token, this.device_id);
 }
 
-// final String apiUrl = 'http://www.checkpm.tk';
 final String apiUrl =
-    'http://ec2-52-78-162-155.ap-northeast-2.compute.amazonaws.com';
+    'http://ec2-18-237-137-101.us-west-2.compute.amazonaws.com/';
 var nowDate = DateTime.now();
 
 // 미세먼지 단계별 컬러
