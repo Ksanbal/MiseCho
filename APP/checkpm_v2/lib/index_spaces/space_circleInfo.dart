@@ -3,6 +3,28 @@ import 'package:circle_chart/circle_chart.dart';
 import '../main.dart';
 
 space_circle(double pm10, double pm2p5) {
+  if (pm10 == null && pm2p5 == null) {
+    return Column(
+      children: [
+        Text(
+          '현재 상황',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Expanded(
+          child: Icon(
+            Icons.cloud_off,
+            color: Colors.white,
+            size: 70,
+          ),
+        )
+      ],
+    );
+  }
+
   return Column(
     children: [
       Text(

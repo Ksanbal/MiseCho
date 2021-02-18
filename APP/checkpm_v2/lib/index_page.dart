@@ -62,7 +62,7 @@ class _IndexPageState extends State<IndexPage> {
       backgroundColor: Colors.white,
       appBar: space_AppBar(),
       body: isLoading
-          ? Container(
+          ? Center(
               child: CircularProgressIndicator(backgroundColor: Colors.grey))
           : Column(
               children: <Widget>[
@@ -87,6 +87,13 @@ class _IndexPageState extends State<IndexPage> {
           fontFamily: "Pacifico",
           color: Colors.lightBlue[400],
         ),
+      ),
+      leading: IconButton(
+        icon: Icon(Icons.bluetooth),
+        color: Colors.lightBlue[400],
+        onPressed: () {
+          print('test');
+        },
       ),
       actions: <Widget>[
         IconButton(
@@ -231,27 +238,44 @@ class _IndexPageState extends State<IndexPage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Row(
-                children: [
-                  // PM10
-                  Expanded(
-                    child: CircleChart(
-                      progressColor: make_color('pm10', deviceItem.avgpm10),
-                      progressNumber:
-                          (deviceItem.avgpm10 > 0) ? deviceItem.avgpm10 : 1,
-                      maxNumber: 160,
-                    ),
-                  ),
-                  // PM2p5
-                  Expanded(
-                    child: CircleChart(
-                      progressColor: make_color('pm2p5', deviceItem.avgpm25),
-                      progressNumber:
-                          (deviceItem.avgpm25 > 0) ? deviceItem.avgpm25 : 1,
-                      maxNumber: 80,
-                    ),
-                  ),
-                ],
+              Expanded(
+                child: Row(
+                  children: [
+                    // PM10
+                    (deviceItem.avgpm10 > 0)
+                        ? Expanded(
+                            child: CircleChart(
+                              progressColor:
+                                  make_color('pm10', deviceItem.avgpm10),
+                              progressNumber: deviceItem.avgpm10,
+                              maxNumber: 160,
+                            ),
+                          )
+                        : Expanded(
+                            child: Icon(
+                              Icons.cloud_off,
+                              color: Colors.lightBlue,
+                            ),
+                          ),
+
+                    // PM2p5
+                    (deviceItem.avgpm25 > 0)
+                        ? Expanded(
+                            child: CircleChart(
+                              progressColor:
+                                  make_color('pm2p5', deviceItem.avgpm25),
+                              progressNumber: deviceItem.avgpm25,
+                              maxNumber: 80,
+                            ),
+                          )
+                        : Expanded(
+                            child: Icon(
+                              Icons.cloud_off,
+                              color: Colors.lightBlue,
+                            ),
+                          ),
+                  ],
+                ),
               ),
             ],
           ),

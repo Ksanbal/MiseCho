@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:scrolling_page_indicator/scrolling_page_indicator.dart';
 import 'package:fl_chart/fl_chart.dart';
 
-import '../main.dart' as main;
-
 List<FlSpot> _pm10Spot = [];
 List<FlSpot> _pm25Spot = [];
 bool _isEmptyChart;
