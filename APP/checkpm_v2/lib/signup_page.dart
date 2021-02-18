@@ -158,7 +158,6 @@ class _SignupPageState extends State<SignupPage> {
           // Name TextField
           TextField(
             controller: name_Controller,
-            obscureText: true,
             decoration: InputDecoration(
               labelText: '이름',
             ),
@@ -166,7 +165,6 @@ class _SignupPageState extends State<SignupPage> {
           // Company ID TextField
           TextField(
             controller: cId_Controller,
-            obscureText: true,
             decoration: InputDecoration(
               labelText: '회사 아이디',
             ),
