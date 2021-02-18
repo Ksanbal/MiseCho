@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:io';
 
 import 'main.dart';
 import 'detail_page.dart';
@@ -17,6 +16,8 @@ class NotificationPage extends StatefulWidget {
 
 class _NotificationPageState extends State<NotificationPage> {
   bool isLoading = true;
+  int callNum = 10;
+  ScrollController _scrollController = new ScrollController();
 
   Future<List<Item>> getList;
 
@@ -24,6 +25,22 @@ class _NotificationPageState extends State<NotificationPage> {
   void initState() {
     super.initState();
     getList = LoadNoti(widget.user.token);
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        print('Page reached end of page');
+        setState(() {
+          callNum = callNum + 10;
+          getList = LoadNoti(widget.user.token);
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -90,6 +107,7 @@ class _NotificationPageState extends State<NotificationPage> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return ListView.builder(
+              controller: _scrollController,
               itemCount: snapshot.data.length,
               itemBuilder: (context, index) {
                 Item item = snapshot.data[index];
@@ -159,7 +177,7 @@ class _NotificationPageState extends State<NotificationPage> {
 
   // 알림 리스트 페이지 HTTP GET
   Future<List<Item>> LoadNoti(token) async {
-    var response = await http.get('$apiUrl/api/app/notice/',
+    var response = await http.get('$apiUrl/api/app/notice/$callNum/',
         headers: <String, String>{'Authorization': "Token $token"});
     if (response.statusCode == 200) {
       List jsonList = jsonDecode(utf8.decode(response.bodyBytes));
