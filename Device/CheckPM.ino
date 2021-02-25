@@ -5,13 +5,14 @@
 #include <ArduinoJson.h>
 
 // WiFi
-const char ssid[] = "********";		// Wifi name
-const char pass[] = "********";		// Wifi password
+const char ssid[] = "********";     // Wifi name
+const char pass[] = "********";   // Wifi password
 int status = WL_IDLE_STATUS;
 
-const char Hostname[] = "***.***.***.***";	// Host IP
-const char GetPath[] = "/api/device/data/1/";	
-const char PostPath[] = "/api/device/data/";	
+// HOST
+const char Hostname[] = "***.***.***.***";        // host IP
+const char GetPath[] = "/api/device/data/1/";   // Get PATH
+const char PostPath[] = "/api/device/data/";    // POST PATH
 
 WiFiClient wifi_client;
 HttpClient http(wifi_client, Hostname);
@@ -20,6 +21,12 @@ PM2008_I2C pm2008;
 void setup() {
   // Initalize serial and wait for port to open
   Serial.begin(9600);
+
+  // Wifi Connect
+  Serial.print("Attempting to connect to WPA SSID: ");
+  Serial.println(ssid);
+
+  WiFi.begin(ssid, pass);
 
   pm2008.begin();
   pm2008.command();
