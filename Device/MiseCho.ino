@@ -20,7 +20,7 @@ const int GREEN_PIN = 11;
 int status = WL_IDLE_STATUS;
 
 // HOST
-const char Hostname[] = "18.237.137.101";        // host IP
+const char Hostname[] = "000.000.000.000";        // host IP
 const char GetPath[] = "/api/device/data/1/";   // Get PATH
 const char PostPath[] = "/api/device/data/";    // POST PATH
 WiFiClient wifi_client;
