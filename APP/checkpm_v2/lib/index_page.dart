@@ -7,6 +7,9 @@ import 'package:flutter_material_pickers/flutter_material_pickers.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:heatmap_calendar/time_utils.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart'; // Messaging 패키지
 
 import 'main.dart';
 import 'notice_page.dart';
@@ -15,6 +18,8 @@ import 'detail_page.dart';
 import './index_spaces/space_circleInfo.dart' as index_circle;
 import './index_spaces/space_heatmap.dart' as index_heat;
 import './index_spaces/space_chart.dart' as index_chart;
+import 'write_ssid_page.dart' as write_ssid_page;
+import 'write_ssid_ble_page.dart' as write_ssid_ble_page;
 
 bool isEmptyDevice = false;
 
@@ -23,16 +28,16 @@ List<FlSpot> index_pm10Spot = [];
 List<FlSpot> index_pm25Spot = [];
 
 // Circle Chart 데이터
-double index_current_pm10;
-double index_current_pm2p5;
+double? index_current_pm10;
+double? index_current_pm2p5;
 
 // HeatMap Chart 데이터
-Map<DateTime, int> index_heat_pm10;
-Map<DateTime, int> index_heat_pm2p5;
+Map<DateTime, int>? index_heat_pm10;
+Map<DateTime, int>? index_heat_pm2p5;
 
 class IndexPage extends StatefulWidget {
-  final User user;
-  IndexPage({Key key, @required this.user}) : super(key: key);
+  final User? user;
+  IndexPage({@required this.user});
 
   @override
   _IndexPageState createState() => _IndexPageState();
@@ -42,18 +47,26 @@ class _IndexPageState extends State<IndexPage> {
   bool isLoading = true;
 
   final pageView_controller = new PageController();
-  Future<List<DeviceItem>> getList;
+  Future<List<DeviceItem>>? getList;
 
   @override
   void initState() {
+    firebaseCloudMessaging_Listeners();
+    doinit();
     super.initState();
+  }
+
+  doinit() async {
     var getDate = '${nowDate.year}-${nowDate.month}-${nowDate.day}';
-    LoadChart(
+    await LoadChart(
       '${nowDate.year}-${nowDate.month}-${nowDate.day}',
-      widget.user.token,
+      widget.user!.token,
     );
-    LoadHeatmapChart(widget.user.token);
-    getList = LoadDevice(getDate, widget.user.token);
+    await LoadHeatmapChart(widget.user!.token);
+    getList = LoadDevice(getDate, widget.user!.token);
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
@@ -72,27 +85,38 @@ class _IndexPageState extends State<IndexPage> {
                 space_Devices(),
               ],
             ),
+      floatingActionButton: myFloatActionBtn(),
     );
   }
 
 // Widget
   space_AppBar() {
     return AppBar(
+      centerTitle: true,
       backgroundColor: Colors.white,
       elevation: 0,
-      title: Text(
-        "MiseCho",
-        style: TextStyle(
-          fontSize: 20,
-          fontFamily: "Pacifico",
-          color: Colors.lightBlue[400],
+      title: InkWell(
+        child: Text(
+          "MiseCho",
+          style: TextStyle(
+            fontSize: 20,
+            fontFamily: "Pacifico",
+            color: Colors.lightBlue[400],
+          ),
         ),
+        onTap: () {
+          // 로그아웃
+          logout();
+        },
       ),
       leading: IconButton(
-        icon: Icon(Icons.bluetooth),
+        icon: Icon(Icons.refresh),
         color: Colors.lightBlue[400],
         onPressed: () {
-          print('test');
+          setState(() {
+            isLoading = true;
+          });
+          doinit();
         },
       ),
       actions: <Widget>[
@@ -106,10 +130,15 @@ class _IndexPageState extends State<IndexPage> {
               PageTransition(
                 type: PageTransitionType.rightToLeft,
                 child: NotificationPage(
-                  user: widget.user,
+                  user: widget.user!,
                 ),
               ),
-            );
+            ).then((value) {
+              setState(() {
+                isLoading = true;
+              });
+              doinit();
+            });
           },
         ),
       ],
@@ -120,8 +149,8 @@ class _IndexPageState extends State<IndexPage> {
     List<Widget> items = [
       Container(
         color: Colors.lightBlue[400],
-        child:
-            index_circle.space_circle(index_current_pm10, index_current_pm2p5),
+        child: index_circle.space_circle(
+            index_current_pm10!, index_current_pm2p5!),
       ),
       Container(
         color: Colors.lightBlue[400],
@@ -148,7 +177,7 @@ class _IndexPageState extends State<IndexPage> {
 
               // Chart PageView
               Container(
-                height: 230,
+                height: 270,
                 child: PageView(
                   controller: pageView_controller,
                   children: items,
@@ -200,15 +229,17 @@ class _IndexPageState extends State<IndexPage> {
             showMaterialDatePicker(
               context: context,
               selectedDate: nowDate,
+              firstDate: DateTime(2021),
+              lastDate: DateTime.now(),
               onChanged: (value) => setState(
                 () {
                   isLoading = true;
                   nowDate = value;
                   LoadChart('${nowDate.year}-${nowDate.month}-${nowDate.day}',
-                      widget.user.token);
+                      widget.user!.token);
                   getList = LoadDevice(
                       '${nowDate.year}-${nowDate.month}-${nowDate.day}',
-                      widget.user.token);
+                      widget.user!.token);
                   isLoading = false;
                 },
               ),
@@ -232,7 +263,7 @@ class _IndexPageState extends State<IndexPage> {
             children: [
               SizedBox(height: 15),
               Text(
-                deviceItem.name,
+                deviceItem.name!,
                 style: TextStyle(
                   color: Colors.lightBlue,
                   fontWeight: FontWeight.bold,
@@ -242,12 +273,13 @@ class _IndexPageState extends State<IndexPage> {
                 child: Row(
                   children: [
                     // PM10
-                    (deviceItem.avgpm10 > 0)
+                    (deviceItem.avgpm10! > 0)
                         ? Expanded(
                             child: CircleChart(
                               progressColor:
                                   make_color('pm10', deviceItem.avgpm10),
-                              progressNumber: deviceItem.avgpm10,
+                              progressNumber:
+                                  deviceItem.avgpm10!.roundToDouble(),
                               maxNumber: 160,
                             ),
                           )
@@ -259,12 +291,13 @@ class _IndexPageState extends State<IndexPage> {
                           ),
 
                     // PM2p5
-                    (deviceItem.avgpm25 > 0)
+                    (deviceItem.avgpm25! > 0)
                         ? Expanded(
                             child: CircleChart(
                               progressColor:
                                   make_color('pm2p5', deviceItem.avgpm25),
-                              progressNumber: deviceItem.avgpm25,
+                              progressNumber:
+                                  deviceItem.avgpm25!.roundToDouble(),
                               maxNumber: 80,
                             ),
                           )
@@ -280,14 +313,19 @@ class _IndexPageState extends State<IndexPage> {
             ],
           ),
           onPressed: () {
-            final device = Device(widget.user.token, deviceItem.id);
+            final device = Device(widget.user!.token, deviceItem.id!);
             Navigator.push(
               context,
               PageTransition(
                 child: DetailPage(device: device),
                 type: PageTransitionType.bottomToTop,
               ),
-            );
+            ).then((value) {
+              setState(() {
+                isLoading = true;
+              });
+              doinit();
+            });
           },
         ),
       );
@@ -306,23 +344,167 @@ class _IndexPageState extends State<IndexPage> {
                       childAspectRatio: 1.2,
                       crossAxisCount: 2,
                     ),
-                    itemCount: snapshot.data.length,
+                    itemCount: snapshot.data!.length,
                     itemBuilder: (context, index) {
-                      DeviceItem deviceItem = snapshot.data[index];
+                      DeviceItem deviceItem = snapshot.data![index];
                       return _buildItemWidget(deviceItem);
                     },
                   );
-                }
+                } else
+                  return ListView();
               },
             ),
     );
   }
 
+  logout() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('로그아웃'),
+          content: Text('로그아웃 하시겠습니까?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text("Cancel"),
+              onPressed: () => Navigator.pop(context),
+            ),
+            TextButton(
+              child: Text('OK'),
+              onPressed: () async {
+                // API 로그아웃
+                var res = await http.post(
+                  '$apiUrl/api/app/auth/logout/',
+                  headers: <String, String>{
+                    'Authorization': "Token ${widget.user!.token}"
+                  },
+                );
+
+                if (res.statusCode == 200) {
+                  final storage = new FlutterSecureStorage();
+                  await storage.delete(key: "misecho_login");
+                  Navigator.pushReplacement(context,
+                      MaterialPageRoute(builder: (context) => LoginPage()));
+                } else {
+                  Navigator.pop(context);
+                }
+              },
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  myFloatActionBtn() {
+    TextEditingController _controller = TextEditingController();
+
+    return FloatingActionButton(
+      child: Icon(Icons.add, color: Colors.white),
+      onPressed: () {
+        // 다이알로그 팝업
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('디바이스 추가하기'),
+              content: TextFormField(
+                controller: _controller,
+                decoration: InputDecoration(
+                  labelText: "Device Name",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(5),
+                    borderSide: BorderSide(width: 2),
+                  ),
+                ),
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  child: Text("Cancel"),
+                  onPressed: () => Navigator.pop(context),
+                ),
+                TextButton(
+                  child: Text('OK'),
+                  onPressed: () async {
+                    // 디바이스 추가하기
+                    var res = await http.post(
+                      "$apiUrl/api/device/addDevice/",
+                      headers: <String, String>{
+                        'Content-Type': "application/json",
+                        'Authorization': "Token ${widget.user!.token}"
+                      },
+                      body: jsonEncode({'device_name': _controller.text}),
+                    );
+
+                    if (res.statusCode == 200) {
+                      // 새로운 창
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text("성공"),
+                            content: Text("아래의 값으로 기기를 초기화해주세요.\n${res.body}"),
+                            actions: <Widget>[
+                              TextButton(
+                                child: Text("OK"),
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  Navigator.pop(context);
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    } else {
+                      Navigator.pop(context);
+                      // 새로운 창
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text("실패"),
+                            content: Text("디바이스 추가를 실패하였습니다.\n${res.body}"),
+                            actions: <Widget>[
+                              TextButton(
+                                child: Text("OK"),
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  Navigator.pop(context);
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }
+                  },
+                )
+              ],
+            );
+          },
+        ).then((value) {
+          setState(() {
+            isLoading = true;
+          });
+          doinit();
+        });
+      },
+    );
+  }
+
   // 메인페이지 Chart 데이터 HTTP GET
   LoadChart(date, token) async {
-    List<double> pmHour = List<double>();
-    List<double> pm10value = List<double>();
-    List<double> pm25value = List<double>();
+    List<double> pmHour = [];
+    List<double> pm10value = [];
+    List<double> pm25value = [];
 
     var response = await http.get('$apiUrl/api/app/main/chart/$date/',
         headers: <String, String>{'Authorization': "Token $token"});
@@ -348,8 +530,10 @@ class _IndexPageState extends State<IndexPage> {
             index_pm25Spot.clear();
 
             for (int i = 0; i < pmHour.length; i++) {
-              index_pm10Spot.add(FlSpot(pmHour[i], pm10value[i]));
-              index_pm25Spot.add(FlSpot(pmHour[i], pm25value[i]));
+              index_pm10Spot
+                  .add(FlSpot(pmHour[i], pm10value[i].roundToDouble()));
+              index_pm25Spot
+                  .add(FlSpot(pmHour[i], pm25value[i].roundToDouble()));
             }
 
             index_current_pm10 = pm10value[pm10value.length - 1];
@@ -364,9 +548,9 @@ class _IndexPageState extends State<IndexPage> {
 
   // HeatMap Chart 데이터 HTTP GET
   LoadHeatmapChart(token) async {
-    List<DateTime> pmDateValue = List<DateTime>();
-    List<int> pm10value = List<int>();
-    List<int> pm25value = List<int>();
+    List<DateTime> pmDateValue = [];
+    List<int> pm10value = [];
+    List<int> pm25value = [];
     var response = await http.get('$apiUrl/api/app/main/heatmap/',
         headers: <String, String>{'Authorization': "Token $token"});
 
@@ -408,24 +592,38 @@ class _IndexPageState extends State<IndexPage> {
         isEmptyDevice = false;
         var getList =
             jsonList.map((element) => DeviceItem.fromJson(element)).toList();
-        setState(() {
-          isLoading = false;
-        });
         return getList;
       }
     } else {
       throw Exception('Faild to load Get');
     }
+    return [];
+  }
+
+  // FCM 리스너
+  void firebaseCloudMessaging_Listeners() async {
+    // FCM 수신
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      print('log: Got a message whilst in the foreground!');
+      print(
+          'log: Message notification: ${message.notification!.title}, ${message.notification!.body}');
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
+      print('log: Got a message whilst in the background!');
+      print(
+          'log: Message notification: ${message.notification!.title}, ${message.notification!.body}');
+    });
   }
 }
 
 // 메인페이지 디바이스 리스트 class
 class DeviceItem {
-  final int id;
-  final String name;
-  final bool connect;
-  final double avgpm10;
-  final double avgpm25;
+  final int? id;
+  final String? name;
+  final bool? connect;
+  final double? avgpm10;
+  final double? avgpm25;
 
   DeviceItem({this.id, this.name, this.connect, this.avgpm10, this.avgpm25});
 

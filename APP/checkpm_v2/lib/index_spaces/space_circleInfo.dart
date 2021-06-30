@@ -40,7 +40,7 @@ space_circle(double pm10, double pm2p5) {
           children: [
             Expanded(
               child: CircleChart(
-                progressNumber: pm10,
+                progressNumber: pm10.roundToDouble(),
                 maxNumber: 160,
                 width: 300,
                 height: 220,
@@ -72,7 +72,7 @@ space_circle(double pm10, double pm2p5) {
             ),
             Expanded(
               child: CircleChart(
-                progressNumber: pm2p5,
+                progressNumber: pm2p5.roundToDouble(),
                 maxNumber: 80,
                 width: 300,
                 height: 220,
@@ -110,7 +110,7 @@ space_circle(double pm10, double pm2p5) {
 }
 
 getPMGrade(String type, int value) {
-  String return_text;
+  String? return_text;
   if (type == 'pm10') {
     if (value <= 15) {
       return_text = "최고";

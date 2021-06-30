@@ -4,7 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 
 List<FlSpot> _pm10Spot = [];
 List<FlSpot> _pm25Spot = [];
-bool _isEmptyChart;
+late bool _isEmptyChart;
 
 space_pmChart(pm10, pm2p5) {
   final pmchart_controller = new PageController();
@@ -244,7 +244,7 @@ LineChartData PM10Data() {
       ),
       minX: 0,
       maxX: 48,
-      maxY: 160,
+      maxY: 151,
       minY: 0,
       lineBarsData: _isEmptyChart ? EmptyLinesBarData() : linesBarData1());
 }
@@ -343,7 +343,7 @@ LineChartData PM25Data() {
       ),
       minX: 0,
       maxX: 48,
-      maxY: 80,
+      maxY: 76,
       minY: 0,
       lineBarsData: _isEmptyChart ? EmptyLinesBarData() : linesBarData2());
 }

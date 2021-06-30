@@ -7,14 +7,14 @@ import 'dart:convert';
 import './detail_spaces/space_chart.dart' as detail_chart;
 import 'main.dart';
 
-Setting nowSetting;
+Setting? nowSetting;
 
 List<FlSpot> detail_pm10Spot = [];
 List<FlSpot> detail_pm25Spot = [];
 
 class DetailPage extends StatefulWidget {
-  final Device device;
-  DetailPage({Key key, @required this.device}) : super(key: key);
+  final Device? device;
+  DetailPage({@required this.device});
 
   @override
   _DetailPageState createState() => _DetailPageState();
@@ -28,10 +28,19 @@ class _DetailPageState extends State<DetailPage> {
 
   @override
   void initState() {
+    doInit();
     super.initState();
-    LoadChart(widget.device.device_id,
-        '${nowDate.year}-${nowDate.month}-${nowDate.day}', widget.device.token);
-    LoadSetting(widget.device.device_id, widget.device.token);
+  }
+
+  doInit() async {
+    await LoadChart(
+        widget.device!.device_id,
+        '${nowDate.year}-${nowDate.month}-${nowDate.day}',
+        widget.device!.token);
+    await LoadSetting(widget.device!.device_id, widget.device!.token);
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
@@ -47,9 +56,8 @@ class _DetailPageState extends State<DetailPage> {
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: isLoading
-            ? Container(
-                child: CircularProgressIndicator(backgroundColor: Colors.grey),
-              )
+            ? Center(
+                child: CircularProgressIndicator(backgroundColor: Colors.white))
             : Column(
                 children: <Widget>[
                   // Chart
@@ -67,16 +75,16 @@ class _DetailPageState extends State<DetailPage> {
     space_dialog() {
       return AlertDialog(
         title: Text('변경사항'),
-        content: Text('${nowSetting.name}' + '의 설정을 변경하시겠습니까?'),
+        content: Text('${nowSetting!.name}' + '의 설정을 변경하시겠습니까?'),
         actions: <Widget>[
           FlatButton(
               onPressed: () async {
                 // 변경사항 적용 코드 자리
                 var data = GetSaveData(); // PUT할 데이터 값
                 final response = await http.put(
-                  '$apiUrl/api/app/device/value/${widget.device.device_id}/',
+                  '$apiUrl/api/app/device/value/${widget.device!.device_id}/',
                   headers: <String, String>{
-                    'Authorization': "Token ${widget.device.token}"
+                    'Authorization': "Token ${widget.device!.token}"
                   },
                   body: data,
                 );
@@ -150,7 +158,7 @@ class _DetailPageState extends State<DetailPage> {
         },
       ),
       title: Text(
-        nowSetting.name,
+        nowSetting!.name!,
         style: TextStyle(
           fontSize: 20,
           color: Colors.white,
@@ -187,12 +195,14 @@ class _DetailPageState extends State<DetailPage> {
               showMaterialDatePicker(
                 context: context,
                 selectedDate: nowDate,
+                firstDate: DateTime(2021),
+                lastDate: DateTime.now(),
                 onChanged: (value) => setState(() {
                   nowDate = value;
                   LoadChart(
-                      widget.device.device_id,
+                      widget.device!.device_id,
                       '${nowDate.year}-${nowDate.month}-${nowDate.day}',
-                      widget.device.token);
+                      widget.device!.token);
                 }),
               );
             },
@@ -262,7 +272,7 @@ class _DetailPageState extends State<DetailPage> {
                     ),
                     SizedBox(height: 20),
                     Text(
-                      "${nowSetting.freq}분",
+                      "${nowSetting!.freq}분",
                       style: TextStyle(
                         color: Colors.lightBlue[400],
                         fontSize: 25,
@@ -277,10 +287,10 @@ class _DetailPageState extends State<DetailPage> {
                     title: '미세먼지 측정주기',
                     minNumber: 1,
                     maxNumber: 60,
-                    selectedNumber: nowSetting.freq,
+                    selectedNumber: nowSetting!.freq,
                     onChanged: (value) => setState(
                       () {
-                        nowSetting.freq = value;
+                        nowSetting!.freq = value;
                         isChanged = true;
                       },
                     ),
@@ -310,9 +320,9 @@ class _DetailPageState extends State<DetailPage> {
                     ),
                     SizedBox(height: 20),
                     Text(
-                      "${PMNotice[nowSetting.pmhigh]}",
+                      "${PMNotice[nowSetting!.pmhigh!]}",
                       style: TextStyle(
-                        color: text_color("${PMNotice[nowSetting.pmhigh]}"),
+                        color: text_color("${PMNotice[nowSetting!.pmhigh!]}"),
                         fontSize: 25,
                         fontWeight: FontWeight.bold,
                       ),
@@ -324,9 +334,9 @@ class _DetailPageState extends State<DetailPage> {
                     context: context,
                     title: '위험 미세먼지 정도',
                     items: PMNotice,
-                    selectedItem: PMNotice[nowSetting.pmhigh],
+                    selectedItem: PMNotice[nowSetting!.pmhigh!],
                     onChanged: (value) => setState(() {
-                      nowSetting.pmhigh = PMNotice.indexOf(value);
+                      nowSetting!.pmhigh = PMNotice.indexOf(value.toString());
                       isChanged = true;
                     }),
                   );
@@ -341,9 +351,9 @@ class _DetailPageState extends State<DetailPage> {
 
   // 디바이스 Chart 데이터 HTTP GET
   LoadChart(device_id, date, token) async {
-    List<double> pmHour = List<double>();
-    List<double> pm10value = List<double>();
-    List<double> pm25value = List<double>();
+    List<double> pmHour = [];
+    List<double> pm10value = [];
+    List<double> pm25value = [];
 
     var response = await http.get(
         '$apiUrl/api/app/device/chart/$device_id/$date/',
@@ -400,14 +410,14 @@ class _DetailPageState extends State<DetailPage> {
 }
 
 text_color(value) {
-  Color return_color;
+  Color? return_color;
 
   if (value == "최고") {
-    return_color = Colors.blue[600];
+    return_color = Colors.blue[600]!;
   } else if (value == "좋음") {
-    return_color = Colors.blue[400];
+    return_color = Colors.blue[400]!;
   } else if (value == "양호") {
-    return_color = Colors.blue[200];
+    return_color = Colors.blue[200]!;
   } else if (value == "보통") {
     return_color = Colors.green;
   } else if (value == "나쁨") {
@@ -415,7 +425,7 @@ text_color(value) {
   } else if (value == "상당히 나쁨") {
     return_color = Colors.deepOrange;
   } else if (value == "매우 나쁨") {
-    return_color = Colors.redAccent[700];
+    return_color = Colors.redAccent[700]!;
   } else if (value == "최악") {
     return_color = Colors.black;
   }
@@ -423,12 +433,12 @@ text_color(value) {
 }
 
 class Setting {
-  int id;
-  String name;
-  bool connect;
-  int freq;
-  int pmhigh;
-  int c_id;
+  int? id;
+  String? name;
+  bool? connect;
+  int? freq;
+  int? pmhigh;
+  int? c_id;
 
   Setting(
       {this.id, this.name, this.connect, this.freq, this.pmhigh, this.c_id});
@@ -448,11 +458,11 @@ class Setting {
 // 디바이스 세팅 PUT
 GetSaveData() {
   Map data = {
-    'name': nowSetting.name,
-    'connect': nowSetting.connect.toString(),
-    'freq': nowSetting.freq.toString(),
-    'pmhigh': nowSetting.pmhigh.toString(),
-    'c_id': nowSetting.c_id.toString(),
+    'name': nowSetting!.name,
+    'connect': nowSetting!.connect.toString(),
+    'freq': nowSetting!.freq.toString(),
+    'pmhigh': nowSetting!.pmhigh.toString(),
+    'c_id': nowSetting!.c_id.toString(),
   };
 
   return data;

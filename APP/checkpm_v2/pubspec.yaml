@@ -4,7 +4,7 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
   flutter:
@@ -18,7 +18,14 @@ dependencies:
   scrolling_page_indicator: any
   circle_chart: ^0.0.3
   heatmap_calendar: ^1.2.8
-  flutter_material_pickers: 1.7.4
+  # flutter_material_pickers: 1.7.4
+  flutter_material_pickers: any
+  flutter_secure_storage: ^4.2.0
+  # path_provider: ^2.0.2
+  # flutter_blue: ^0.7.3
+  firebase_core: 1.2.0
+  firebase_messaging: 10.0.0
+  file_picker: 1.4.3+2
 
 dev_dependencies:
   flutter_test:

@@ -7,8 +7,8 @@ import 'main.dart';
 import 'detail_page.dart';
 
 class NotificationPage extends StatefulWidget {
-  final User user;
-  NotificationPage({Key key, @required this.user}) : super(key: key);
+  final User? user;
+  NotificationPage({@required this.user});
 
   @override
   _NotificationPageState createState() => _NotificationPageState();
@@ -19,22 +19,22 @@ class _NotificationPageState extends State<NotificationPage> {
   int callNum = 10;
   ScrollController _scrollController = new ScrollController();
 
-  Future<List<Item>> getList;
+  Future<List<Item>>? getList;
 
   @override
   void initState() {
-    super.initState();
-    getList = LoadNoti(widget.user.token);
+    getList = LoadNoti(widget.user!.token);
     _scrollController.addListener(() {
       if (_scrollController.position.pixels ==
           _scrollController.position.maxScrollExtent) {
         print('Page reached end of page');
         setState(() {
           callNum = callNum + 10;
-          getList = LoadNoti(widget.user.token);
+          getList = LoadNoti(widget.user!.token);
         });
       }
     });
+    super.initState();
   }
 
   @override
@@ -92,7 +92,7 @@ class _NotificationPageState extends State<NotificationPage> {
           color: Colors.lightBlue[400],
           onPressed: () {
             setState(() {
-              getList = LoadNoti(widget.user.token);
+              getList = LoadNoti(widget.user!.token);
             });
           },
         ),
@@ -108,13 +108,14 @@ class _NotificationPageState extends State<NotificationPage> {
           if (snapshot.hasData) {
             return ListView.builder(
               controller: _scrollController,
-              itemCount: snapshot.data.length,
+              itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
-                Item item = snapshot.data[index];
+                Item item = snapshot.data![index];
                 return _buildItemWidget(item);
               },
             );
           }
+          return ListView();
         },
       ),
     );
@@ -144,8 +145,8 @@ class _NotificationPageState extends State<NotificationPage> {
       ),
       onDismissed: (direction) {
         setState(() {
-          deleteNotice(item.id, widget.user.token);
-          getList = LoadNoti(widget.user.token);
+          deleteNotice(item.id!, widget.user!.token);
+          getList = LoadNoti(widget.user!.token);
         });
         Scaffold.of(context).showSnackBar(
           SnackBar(
@@ -157,11 +158,11 @@ class _NotificationPageState extends State<NotificationPage> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         elevation: 3,
         child: ListTile(
-          leading: Text(item.date),
-          title: Text(item.name),
-          subtitle: Text(item.content),
+          leading: Text(item.date!),
+          title: Text(item.name!),
+          subtitle: Text(item.content!),
           onTap: () {
-            final device = Device(widget.user.token, item.dId);
+            final device = Device(widget.user!.token, item.dId!);
             Navigator.push(
               context,
               PageTransition(
@@ -203,12 +204,12 @@ Future<http.Response> deleteNotice(int id, token) async {
 
 // 알림 리스트 객체
 class Item {
-  final int id;
-  final String name;
-  final String date;
-  final String content;
-  final int dId;
-  final int cId;
+  final int? id;
+  final String? name;
+  final String? date;
+  final String? content;
+  final int? dId;
+  final int? cId;
 
   Item({this.id, this.name, this.date, this.content, this.dId, this.cId});
 
