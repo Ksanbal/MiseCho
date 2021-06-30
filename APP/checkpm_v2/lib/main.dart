@@ -1,10 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'login_page.dart';
 
-void main() => runApp(MyApp());
+// 백그라운드 FCM
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print("Handling a background message : ${message.messageId}");
+}
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -79,9 +92,11 @@ final String apiUrl =
     'http://ec2-18-237-137-101.us-west-2.compute.amazonaws.com/';
 var nowDate = DateTime.now();
 
+String myFCMToken = "";
+
 // 미세먼지 단계별 컬러
 make_color(type, value) {
-  Color return_color;
+  Color? return_color;
   if (type == 'pm10') {
     if (value <= 15) {
       return_color = Colors.blue[600];
