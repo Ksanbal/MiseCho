@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'dart:convert'; // JSON Parsing 패키지
 import 'package:http/http.dart' as http; // http 통신 패키지
 
-import 'main.dart';
+import 'main.dart' as main;
 import 'index_page.dart';
+import 'login_page.dart' as login_page;
 
 class SignupPage extends StatefulWidget {
   @override
@@ -27,7 +28,6 @@ class _SignupPageState extends State<SignupPage> {
 
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomPadding: false,
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Center(
@@ -63,14 +63,16 @@ class _SignupPageState extends State<SignupPage> {
       'username': username,
       'password': password,
       'first_name': name,
-      'c_id': cId
+      'c_id': cId,
+      'fcmToken': main.myFCMToken,
     };
     var jsonData = null;
-    var response = await http.post('$apiUrl/api/app/auth/signup/', body: data);
+    var response =
+        await http.post('${main.apiUrl}/api/app/auth/signup/', body: data);
     if (response.statusCode == 200) {
       jsonData = json.decode(response.body);
       setState(() {
-        final user = User(jsonData['token']);
+        final user = main.User(jsonData['token']);
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => IndexPage(user: user)),
@@ -191,6 +193,7 @@ class _SignupPageState extends State<SignupPage> {
             onPressed: () {
               signUp(id_Controller.text, pw_Controller.text,
                   name_Controller.text, cId_Controller.text);
+              login_page.writeStorage(id_Controller.text, pw_Controller.text);
               print('id = ' + id_Controller.text);
               print('pw = ' + pw_Controller.text);
               print('name = ' + name_Controller.text);

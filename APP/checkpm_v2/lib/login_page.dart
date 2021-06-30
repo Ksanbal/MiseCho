@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'dart:convert'; // JSON Parsing 패키지
 import 'package:http/http.dart' as http; // http 통신 패키지
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'dart:convert';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
-import 'main.dart';
+import 'main.dart' as main;
 import 'signup_page.dart';
 import 'index_page.dart';
 
@@ -13,10 +16,30 @@ class Login2 extends StatefulWidget {
 }
 
 class _Login2State extends State<Login2> {
+  FirebaseMessaging _messaging = FirebaseMessaging.instance; // FCM 인스턴스
+  bool isLoading = true;
   final id_Controller = TextEditingController();
   final pw_Controller = TextEditingController();
-  // final id_Controller = TextEditingController(text: 'ksanbal_test');
-  // final pw_Controller = TextEditingController(text: '1021');
+
+  @override
+  void initState() {
+    firebaseCloudMessaging_Listeners();
+    readStorage();
+    super.initState();
+  }
+
+  void firebaseCloudMessaging_Listeners() async {
+    // 토큰값
+    _messaging.getToken().then((String? token) {
+      // 메인의 데이터에 토큰값 추가
+      if (token != null) {
+        main.myFCMToken = token;
+        print("FCM Token : $token");
+      }
+    });
+
+    await _messaging.setForegroundNotificationPresentationOptions(sound: true);
+  }
 
   @override
   void dispose() {
@@ -27,25 +50,29 @@ class _Login2State extends State<Login2> {
 
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomPadding: false,
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Center(
-          child: Column(
-            children: <Widget>[
-              // Main Text
-              SizedBox(height: 80),
-              space_mainText(),
+          child: isLoading
+              ? CircularProgressIndicator()
+              : SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      // Main Text
+                      space_mainText(),
 
-              // ID, PW TextField
-              SizedBox(height: 30),
-              space_login(),
+                      // ID, PW TextField
+                      SizedBox(height: 30),
+                      space_login(),
 
-              // Login, Signup btns
-              SizedBox(height: 20),
-              space_btns(),
-            ],
-          ),
+                      // Login, Signup btns
+                      SizedBox(height: 20),
+                      space_btns(),
+                      SizedBox(height: 80),
+                    ],
+                  ),
+                ),
         ),
       ),
     );
@@ -56,14 +83,17 @@ class _Login2State extends State<Login2> {
     Map data = {
       'username': username,
       'password': password,
+      'fcmToken': main.myFCMToken,
     };
     var jsonData = null;
-    var response = await http.post('$apiUrl/api/app/auth/signin/', body: data);
+    var response =
+        await http.post('${main.apiUrl}/api/app/auth/signin/', body: data);
     if (response.statusCode == 200) {
       jsonData = json.decode(response.body);
       setState(
         () {
-          final user = User(jsonData['token']);
+          final user = main.User(jsonData['token']);
+          writeStorage(username, password);
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => IndexPage(user: user)),
@@ -71,6 +101,9 @@ class _Login2State extends State<Login2> {
         },
       );
     } else {
+      setState(() {
+        isLoading = false;
+      });
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -88,6 +121,7 @@ class _Login2State extends State<Login2> {
           );
         },
       );
+      return false;
     }
   }
 
@@ -126,6 +160,7 @@ class _Login2State extends State<Login2> {
           // ID TextField
           TextField(
             controller: id_Controller,
+            keyboardType: TextInputType.text,
             decoration: InputDecoration(
               labelText: '아이디',
             ),
@@ -136,6 +171,7 @@ class _Login2State extends State<Login2> {
           // Password TextField
           TextField(
             controller: pw_Controller,
+            keyboardType: TextInputType.visiblePassword,
             obscureText: true,
             decoration: InputDecoration(
               labelText: '비밀번호',
@@ -193,4 +229,28 @@ class _Login2State extends State<Login2> {
       ],
     );
   }
+
+  readStorage() async {
+    var loginValue;
+    final storage = new FlutterSecureStorage();
+    await storage.read(key: "misecho_login").then((value) {
+      if (value != null) {
+        setState(() {
+          isLoading = false;
+        });
+        loginValue = jsonDecode(value);
+        signIn(loginValue['id'], loginValue['pw']);
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    });
+  }
+}
+
+writeStorage(String id, String pw) async {
+  final storage = new FlutterSecureStorage();
+  Map login = {"id": id, 'pw': pw};
+  await storage.write(key: "misecho_login", value: jsonEncode(login));
 }
