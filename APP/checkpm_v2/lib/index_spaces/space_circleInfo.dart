@@ -40,7 +40,7 @@ space_circle(double pm10, double pm2p5) {
           children: [
             Expanded(
               child: CircleChart(
-                progressNumber: pm10.roundToDouble(),
+                progressNumber: (pm10 < 160) ? pm10.roundToDouble() : 159.9,
                 maxNumber: 160,
                 width: 300,
                 height: 220,
@@ -72,7 +72,7 @@ space_circle(double pm10, double pm2p5) {
             ),
             Expanded(
               child: CircleChart(
-                progressNumber: pm2p5.roundToDouble(),
+                progressNumber: (pm2p5 < 80) ? pm2p5.roundToDouble() : 79.9,
                 maxNumber: 80,
                 width: 300,
                 height: 220,
