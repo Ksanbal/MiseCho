@@ -278,8 +278,9 @@ class _IndexPageState extends State<IndexPage> {
                             child: CircleChart(
                               progressColor:
                                   make_color('pm10', deviceItem.avgpm10),
-                              progressNumber:
-                                  deviceItem.avgpm10!.roundToDouble(),
+                              progressNumber: (deviceItem.avgpm10! < 160)
+                                  ? deviceItem.avgpm10!.roundToDouble()
+                                  : 159.9,
                               maxNumber: 160,
                             ),
                           )
@@ -296,8 +297,9 @@ class _IndexPageState extends State<IndexPage> {
                             child: CircleChart(
                               progressColor:
                                   make_color('pm2p5', deviceItem.avgpm25),
-                              progressNumber:
-                                  deviceItem.avgpm25!.roundToDouble(),
+                              progressNumber: (deviceItem.avgpm25! < 80)
+                                  ? deviceItem.avgpm25!.roundToDouble()
+                                  : 79.9,
                               maxNumber: 80,
                             ),
                           )
@@ -403,99 +405,128 @@ class _IndexPageState extends State<IndexPage> {
     return FloatingActionButton(
       child: Icon(Icons.add, color: Colors.white),
       onPressed: () {
+        bool _add_isLoading = false;
         // 다이알로그 팝업
         showDialog(
           context: context,
-          barrierDismissible: false,
+          barrierDismissible: !_add_isLoading,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text('디바이스 추가하기'),
-              content: TextFormField(
-                controller: _controller,
-                decoration: InputDecoration(
-                  labelText: "Device Name",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5),
-                    borderSide: BorderSide(width: 2),
-                  ),
-                ),
-              ),
+              title: Text('디바이스 추가하기', textAlign: TextAlign.center),
+              content: (!_add_isLoading)
+                  ? TextFormField(
+                      controller: _controller,
+                      decoration: InputDecoration(
+                        labelText: "Device Name",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5),
+                          borderSide: BorderSide(width: 2),
+                        ),
+                      ),
+                    )
+                  : SizedBox(
+                      height: 50,
+                      width: 50,
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
               actions: <Widget>[
-                TextButton(
-                  child: Text("Cancel"),
-                  onPressed: () => Navigator.pop(context),
-                ),
-                TextButton(
-                  child: Text('OK'),
-                  onPressed: () async {
-                    // 디바이스 추가하기
-                    var res = await http.post(
-                      "$apiUrl/api/device/addDevice/",
-                      headers: <String, String>{
-                        'Content-Type': "application/json",
-                        'Authorization': "Token ${widget.user!.token}"
-                      },
-                      body: jsonEncode({'device_name': _controller.text}),
-                    );
+                (!_add_isLoading)
+                    ? TextButton(
+                        child: Text("Cancel"),
+                        onPressed: () => Navigator.pop(context),
+                      )
+                    : Container(),
+                (!_add_isLoading)
+                    ? TextButton(
+                        child: Text('OK'),
+                        onPressed: () async {
+                          setState(() {
+                            _add_isLoading = true;
+                          });
+                          // 디바이스 추가하기
+                          var res = await http.post(
+                            "$apiUrl/api/device/addDevice/",
+                            headers: <String, String>{
+                              'Content-Type': "application/json",
+                              'Authorization': "Token ${widget.user!.token}"
+                            },
+                            body: jsonEncode({'device_name': _controller.text}),
+                          );
+                          setState(() {
+                            _add_isLoading = false;
+                          });
 
-                    if (res.statusCode == 200) {
-                      // 새로운 창
-                      showDialog(
-                        context: context,
-                        barrierDismissible: false,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text("성공"),
-                            content: Text("아래의 값으로 기기를 초기화해주세요.\n${res.body}"),
-                            actions: <Widget>[
-                              TextButton(
-                                child: Text("OK"),
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  Navigator.pop(context);
-                                },
-                              ),
-                            ],
-                          );
+                          if (res.statusCode == 200) {
+                            // 새로운 창
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text("아래의 값으로 기기를 초기화해주세요.",
+                                      textAlign: TextAlign.center),
+                                  content: Text(
+                                    res.body,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Colors.lightBlue[400],
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      child: Text("OK"),
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                        Navigator.pop(context);
+                                        setState(() {
+                                          isLoading = true;
+                                        });
+                                        doinit();
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          } else {
+                            Navigator.pop(context);
+                            // 새로운 창
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title:
+                                      Text("실패", textAlign: TextAlign.center),
+                                  content: Text(
+                                    "디바이스 추가를 실패하였습니다.\n${res.body}",
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      child: Text("OK"),
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                        Navigator.pop(context);
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          }
                         },
-                      );
-                    } else {
-                      Navigator.pop(context);
-                      // 새로운 창
-                      showDialog(
-                        context: context,
-                        barrierDismissible: false,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text("실패"),
-                            content: Text("디바이스 추가를 실패하였습니다.\n${res.body}"),
-                            actions: <Widget>[
-                              TextButton(
-                                child: Text("OK"),
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  Navigator.pop(context);
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    }
-                  },
-                )
+                      )
+                    : Container(),
               ],
             );
           },
-        ).then((value) {
-          setState(() {
-            isLoading = true;
-          });
-          doinit();
-        });
+        );
       },
     );
   }
@@ -607,6 +638,9 @@ class _IndexPageState extends State<IndexPage> {
       print('log: Got a message whilst in the foreground!');
       print(
           'log: Message notification: ${message.notification!.title}, ${message.notification!.body}');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(message.notification!.body!),
+      ));
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) async {
