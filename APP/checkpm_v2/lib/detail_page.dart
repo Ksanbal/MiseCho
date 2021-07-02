@@ -33,11 +33,12 @@ class _DetailPageState extends State<DetailPage> {
   }
 
   doInit() async {
+    await LoadSetting(widget.device!.device_id, widget.device!.token);
     await LoadChart(
         widget.device!.device_id,
         '${nowDate.year}-${nowDate.month}-${nowDate.day}',
         widget.device!.token);
-    await LoadSetting(widget.device!.device_id, widget.device!.token);
+
     setState(() {
       isLoading = false;
     });
@@ -157,13 +158,155 @@ class _DetailPageState extends State<DetailPage> {
           }
         },
       ),
-      title: Text(
-        nowSetting!.name!,
-        style: TextStyle(
-          fontSize: 20,
-          color: Colors.white,
+      title: InkWell(
+        child: Text(
+          "${nowSetting!.name!} (ID : ${widget.device!.device_id})",
+          style: TextStyle(
+            fontSize: 20,
+            color: Colors.white,
+          ),
         ),
+        onTap: () {
+          TextEditingController _controller = TextEditingController();
+          // 디바이스 이름 변경하기
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text("디바이스명 변경"),
+                content: TextFormField(
+                  controller: _controller,
+                  decoration: InputDecoration(
+                    labelText: "Device Name",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5),
+                      borderSide: BorderSide(width: 2),
+                    ),
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    child: Text("Cancel"),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  TextButton(
+                    child: Text("Ok"),
+                    onPressed: () async {
+                      // 디바이스 이름 변경
+                      var res = await http.patch(
+                        '$apiUrl/api/device/changeDeviceName/',
+                        headers: <String, String>{
+                          "Content-Type": "application/json",
+                        },
+                        body: jsonEncode(
+                          {
+                            "device_id": widget.device!.device_id,
+                            "new_name": _controller.text,
+                          },
+                        ),
+                      );
+
+                      if (res.statusCode == 200) {
+                        Navigator.pop(context);
+                        setState(() {
+                          isLoading = true;
+                        });
+                        doInit();
+                      } else {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              utf8.decode(res.bodyBytes),
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        },
       ),
+      centerTitle: true,
+      actions: [
+        IconButton(
+          icon: Icon(Icons.delete),
+          color: Colors.white,
+          onPressed: () {
+            bool _delete_isLoading = false;
+            // 삭제 다이알로그
+            showDialog(
+                barrierDismissible: !_delete_isLoading,
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text("디바이스 삭제"),
+                    content: !_delete_isLoading
+                        ? Text("정말 디바이스를 삭제하시겠습니까?")
+                        : SizedBox(
+                            height: 50,
+                            width: 50,
+                            child: Center(child: CircularProgressIndicator()),
+                          ),
+                    actions: [
+                      !_delete_isLoading
+                          ? TextButton(
+                              child: Text("Cancel"),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            )
+                          : Container(),
+                      !_delete_isLoading
+                          ? TextButton(
+                              child: Text("Ok"),
+                              onPressed: () async {
+                                setState(() {
+                                  _delete_isLoading = true;
+                                });
+                                // 삭제 요청
+                                var res = await http.post(
+                                  '$apiUrl/api/device/deleteDevice/',
+                                  headers: <String, String>{
+                                    "Content-Type": "application/json",
+                                    'Authorization':
+                                        "Token ${widget.device!.token}"
+                                  },
+                                  body: jsonEncode(
+                                    {"device_id": widget.device!.device_id},
+                                  ),
+                                );
+                                setState(() {
+                                  _delete_isLoading = false;
+                                });
+
+                                if (res.statusCode == 200) {
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(SnackBar(
+                                    content:
+                                        Text("${nowSetting!.name}가 삭제되었습니다."),
+                                  ));
+                                  Navigator.pop(context);
+                                  Navigator.pop(context);
+                                } else {
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(SnackBar(
+                                    content: Text("삭제를 실패하였습니다."),
+                                  ));
+                                  Navigator.pop(context);
+                                }
+                              },
+                            )
+                          : Container(),
+                    ],
+                  );
+                });
+          },
+        )
+      ],
       backgroundColor: Colors.lightBlue[400],
       elevation: 0,
     );
@@ -387,7 +530,23 @@ class _DetailPageState extends State<DetailPage> {
         );
       }
     } else {
-      throw Exception('Faild to load Get');
+      // throw Exception('Faild to load Get');
+      Navigator.pop(context);
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("디바이스 데이터 로드 실패"),
+            content: Text(utf8.decode(response.bodyBytes)),
+            actions: [
+              TextButton(
+                child: Text("Ok"),
+                onPressed: () => Navigator.pop(context),
+              )
+            ],
+          );
+        },
+      );
     }
   }
 
@@ -404,7 +563,23 @@ class _DetailPageState extends State<DetailPage> {
         isLoading = false;
       });
     } else {
-      throw Exception('Faild to load Get');
+      // throw Exception('Faild to load Get');
+      Navigator.pop(context);
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("디바이스 조회 실패"),
+            content: Text(utf8.decode(response.bodyBytes)),
+            actions: [
+              TextButton(
+                child: Text("Ok"),
+                onPressed: () => Navigator.pop(context),
+              )
+            ],
+          );
+        },
+      );
     }
   }
 }
